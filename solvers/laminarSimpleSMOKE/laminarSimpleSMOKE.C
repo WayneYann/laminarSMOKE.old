@@ -53,7 +53,7 @@ Description
 #include "utilities.H"
 
 // Linearization
-#include "linearizationFunctions.H"
+#include "linearModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -69,6 +69,10 @@ int main(int argc, char *argv[])
 
 	#include "createBasicFields.H"
 	#include "readOptions.H"
+	#include "readOptionsSteadyState.H"
+
+	linearModel linear_model(*thermodynamicsMapXML);
+	
 	#include "createChemicalFields.H"
 	#include "createFvOptions.H"
 	#include "memoryAllocation.H"

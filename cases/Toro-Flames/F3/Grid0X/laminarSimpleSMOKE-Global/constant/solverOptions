@@ -21,6 +21,12 @@ Kinetics
 	inertSpecies 		N2;
 }
 
+SteadyState
+{
+	jacobianUpdate		5;
+	implicitSourceTerm 	true;
+}
+
 PhysicalModel
 {
 	strangAlgorithm 		"MomentumTransportReaction";
