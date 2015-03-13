@@ -17,26 +17,7 @@ public:
 		ChangeDimensions(NE_, &y_plus_, true);
 		ChangeDimensions(NE_, &dy_plus_, true);
 		ChangeDimensions(NE_, &dy_original_, true);
-		Jsparse_.resize(NC_,NC_);
-
-		// Recognize sparsity pattern
-		{
-			Info << "Recognize sparsity pattern..." << endl;
-
-			std::vector<unsigned int> row;
-			std::vector<unsigned int> col;
-
-			kineticsMap_.jacobian_sparsity_pattern_map()->RecognizeJacobianSparsityPattern(row, col);
-
-			typedef Eigen::Triplet<double> T;
-			std::vector<T> tripletList;
-			tripletList.reserve(row.size());
-			for (unsigned int k = 0; k < row.size(); k++)
-				tripletList.push_back(T(row[k], col[k], 1.));
-
-			Jsparse_.setFromTriplets(tripletList.begin(), tripletList.end());
-			Jsparse_.makeCompressed();
-		}
+		Jdiagonal_.resize(NC_);
 	}
 
 	void reactionSourceTerms(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_,
@@ -65,7 +46,7 @@ private:
      	OpenSMOKE::OpenSMOKEVectorDouble dy_plus_;
      	OpenSMOKE::OpenSMOKEVectorDouble dy_original_;
 
-	Eigen::SparseMatrix<double> Jsparse_;
+	Eigen::VectorXd Jdiagonal_;
 };
 
 // 
@@ -163,15 +144,9 @@ void linearModel::reactionJacobianSparse( OpenSMOKE::ThermodynamicsMap_CHEMKIN<d
 			omega_[i] = max(y[i], 0.);
 		const double T = y[NC_+1];
 
-		kineticsMap_.jacobian_sparsity_pattern_map()->Jacobian(omega_, T, P0, Jsparse_);
-		for (int k = 0; k < Jsparse_.outerSize(); ++k)
-		{
-			for (Eigen::SparseMatrix<double>::InnerIterator it(Jsparse_, k); it; ++it)
-			{
-				if (it.row() == it.col()) 
-					J(it.row()) = it.value() * thermodynamicsMap_.MW()[it.row() + 1];
-			}
-		}
+		kineticsMap_.jacobian_sparsity_pattern_map()->Jacobian(omega_, T, P0, Jdiagonal_);
+		for(unsigned int i=0;i<NC_;++i)
+			J(i) = Jdiagonal_(i) * thermodynamicsMap_.MW()[i+1];
 	}
 
 	// Only with respect to the temperature
