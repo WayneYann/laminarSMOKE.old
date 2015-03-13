@@ -1,5 +1,7 @@
 {
-	Info<< "Properties evaluation..." << endl;
+	double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();
+
+	Info<< "Properties evaluation... " ;
 
 	OpenSMOKE::OpenSMOKEVectorDouble HVector(thermodynamicsMapXML->NumberOfSpecies());
 	OpenSMOKE::OpenSMOKEVectorDouble Dmixvector(thermodynamicsMapXML->NumberOfSpecies());
@@ -179,4 +181,8 @@
 			}
 		}
 	}
+	
+	double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
+
+	Info << "done in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;
 }

@@ -1,7 +1,7 @@
 {
 	if (implicitSourceTerm == true && jacobianUpdate == 1)
 	{
-		Info<< "Jacobian evaluation..." << endl;
+		Info<< "Jacobian evaluation (continous)... " << endl;
 
 		double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();	
 		{
@@ -21,7 +21,12 @@
 				y[NC+1] = TCells[celli];
 
 				linear_model.reactionSourceTerms(	*thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], Source);
-				linear_model.reactionJacobian( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
+
+
+				if (sparseJacobian == false)
+					linear_model.reactionJacobian( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
+				else
+					linear_model.reactionJacobianSparse( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
 
 				for(int i=0;i<NC+1;i++)
 					sourceImplicit[i].internalField()[celli] = J(i);
@@ -32,11 +37,11 @@
 		}
 		double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 
-		Info << "   Jacobian evaluations in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;
+		Info << "done in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;
 	}
 	else if (implicitSourceTerm == true && jacobianUpdate != 1)
 	{
-		Info<< "Jacobian evaluation..." << endl;
+		Info<< "Jacobian evaluation (discrete)... " << endl;
 
 		double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();	
 		{
@@ -59,7 +64,11 @@
 
 				if (jacobianCounter == jacobianUpdate)
 				{
-					linear_model.reactionJacobian( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
+					if (sparseJacobian == false)
+						linear_model.reactionJacobian( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
+					else
+						linear_model.reactionJacobianSparse( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
+
 					Jstore[celli] = J;
 				}
 
@@ -72,7 +81,7 @@
 		}
 		double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 
-		Info << "   Jacobian evaluations in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;
+		Info << "done in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;
 
 		if (jacobianCounter == jacobianUpdate)
 			jacobianCounter = 0;
@@ -81,7 +90,7 @@
 	}
 	else
 	{
-		Info<< "Source terms evaluation..." << endl;
+		Info<< "Source terms evaluation... " << endl;
 
 		double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();	
 		{
@@ -110,6 +119,6 @@
 		}
 		double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 
-		Info << "   Source terms evaluations in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;	
+		Info << "done in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;	
 	}
 }

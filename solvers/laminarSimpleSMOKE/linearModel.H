@@ -4,7 +4,7 @@ class linearModel
 
 public:
 
-	linearModel(OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_)
+	linearModel(OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_)
 	{
 		NC_ = thermodynamicsMap_.NumberOfSpecies();
 		NE_ = NC_+1;
@@ -17,6 +17,26 @@ public:
 		ChangeDimensions(NE_, &y_plus_, true);
 		ChangeDimensions(NE_, &dy_plus_, true);
 		ChangeDimensions(NE_, &dy_original_, true);
+		Jsparse_.resize(NC_,NC_);
+
+		// Recognize sparsity pattern
+		{
+			Info << "Recognize sparsity pattern..." << endl;
+
+			std::vector<unsigned int> row;
+			std::vector<unsigned int> col;
+
+			kineticsMap_.jacobian_sparsity_pattern_map()->RecognizeJacobianSparsityPattern(row, col);
+
+			typedef Eigen::Triplet<double> T;
+			std::vector<T> tripletList;
+			tripletList.reserve(row.size());
+			for (unsigned int k = 0; k < row.size(); k++)
+				tripletList.push_back(T(row[k], col[k], 1.));
+
+			Jsparse_.setFromTriplets(tripletList.begin(), tripletList.end());
+			Jsparse_.makeCompressed();
+		}
 	}
 
 	void reactionSourceTerms(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_,
@@ -45,8 +65,7 @@ private:
      	OpenSMOKE::OpenSMOKEVectorDouble dy_plus_;
      	OpenSMOKE::OpenSMOKEVectorDouble dy_original_;
 
-	double CvMixMass_;
-	double CpMixMass_;
+	Eigen::SparseMatrix<double> Jsparse_;
 };
 
 // 
@@ -56,7 +75,7 @@ void linearModel::reactionSourceTerms(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 	
 	
 	for(unsigned int i=1;i<=NC_;++i)
-			omega_[i] = max(y[i], 0.);
+		omega_[i] = max(y[i], 0.);
 	const double T = y[NC_+1];
 
 	// Calculates the pressure and the concentrations of species
@@ -84,24 +103,11 @@ void linearModel::reactionSourceTerms(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
     	{
 		double CpMixMolar; 
 		thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
-		CvMixMass_ = (CpMixMolar - PhysicalConstants::R_J_kmol) / MW_;
-		CpMixMass_ = CpMixMolar / MW_;
+		const double CpMixMass_ = CpMixMolar / MW_;
 		const double QR_ = kineticsMap_.HeatRelease(R_);
 		
 		S[NC_+1]  = QR_;
 	}
-	
-	/*
-	{
-		double CpMixMolar; 
-		thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
-		CvMixMass_ = (CpMixMolar - PhysicalConstants::R_J_kmol) / MW_;
-		CpMixMass_ = CpMixMolar / MW_;
-		thermodynamicsMap_.uMolar_Species(U_);
-
-        	S[NC_+1]  = -OpenSMOKE::Dot(R_, U_) * CpMixMass_ / CvMixMass_;
-	}
-	*/
 }
 
 void linearModel::reactionJacobian( OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_,
@@ -144,3 +150,65 @@ void linearModel::reactionJacobian( OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>
      }
  }
 
+void linearModel::reactionJacobianSparse( OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_,
+		       const OpenSMOKE::OpenSMOKEVectorDouble& y, const double P0,
+		       Eigen::VectorXd &J) 
+{
+	J.setConstant(0.);
+
+	// Sparse Jacobian
+	{
+		// Recover mass fractions
+		for(unsigned int i=1;i<=NC_;++i)
+			omega_[i] = max(y[i], 0.);
+		const double T = y[NC_+1];
+
+		kineticsMap_.jacobian_sparsity_pattern_map()->Jacobian(omega_, T, P0, Jsparse_);
+		for (int k = 0; k < Jsparse_.outerSize(); ++k)
+		{
+			for (Eigen::SparseMatrix<double>::InnerIterator it(Jsparse_, k); it; ++it)
+			{
+				if (it.row() == it.col()) 
+					J(it.row()) = it.value() * thermodynamicsMap_.MW()[it.row() + 1];
+			}
+		}
+	}
+
+	// Only with respect to the temperature
+	{
+		// Calculated as suggested by Buzzi (private communication)
+		const double ZERO_DER = std::sqrt(OPENSMOKE_TINY_FLOAT);
+		const double ETA2 = std::sqrt(OpenSMOKE::OPENSMOKE_MACH_EPS_DOUBLE);
+		const double BETA = 1.e3 * OpenSMOKE::OPENSMOKE_MACH_EPS_DOUBLE;
+		const double TOLR = 1.e-7;
+		const double TOLA = 1.e-12;
+
+		for(unsigned int i=1;i<=NE_;i++)
+		y_plus_[i] = y[i];
+
+		// Call equations
+		reactionSourceTerms(thermodynamicsMap_, kineticsMap_, y, P0, dy_original_);     
+
+		// Derivatives with respect to the temperature
+		const int kd=NE_;
+		{
+			double hf = 1.e0;
+			double error_weight = 1./(TOLA+TOLR*fabs(y[kd]));
+			double hJ = ETA2 * fabs(std::max(y[kd], 1./error_weight));
+			double hJf = hf/error_weight;
+			hJ = std::max(hJ, hJf);
+			hJ = std::max(hJ, ZERO_DER);
+
+			// This is what is done by Buzzi
+			double dy = std::min(hJ, 1.e-3 + 1e-3*fabs(y[kd]));
+			double udy = 1. / dy;
+			y_plus_[kd] += dy;
+
+			reactionSourceTerms(thermodynamicsMap_, kineticsMap_, y_plus_, P0, dy_plus_);
+
+			J(kd-1) = (dy_plus_[kd]-dy_original_[kd]) * udy;
+
+			y_plus_[kd] = y[kd];
+		}
+	}
+ }

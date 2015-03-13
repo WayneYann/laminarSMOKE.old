@@ -23,8 +23,10 @@ Kinetics
 
 SteadyState
 {
-	jacobianUpdate		5;
 	implicitSourceTerm 	true;
+	sparseJacobian		true;
+	jacobianUpdate		5;
+	propertiesUpdate	10;
 }
 
 PhysicalModel

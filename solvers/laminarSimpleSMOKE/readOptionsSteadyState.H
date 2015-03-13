@@ -1,15 +1,20 @@
 label jacobianUpdate = 1;
+label propertiesUpdate = 1;
 Switch implicitSourceTerm = true;
+Switch sparseJacobian  = true;
 
 const dictionary& steadyStateDictionary = solverOptions.subDict("SteadyState");
 {
-	jacobianUpdate  = readLabel(steadyStateDictionary.lookup("jacobianUpdate"));
+	sparseJacobian     = Switch(steadyStateDictionary.lookup(word("sparseJacobian")));
+	jacobianUpdate     = readLabel(steadyStateDictionary.lookup("jacobianUpdate"));
+	propertiesUpdate   = readLabel(steadyStateDictionary.lookup("propertiesUpdate"));
 	implicitSourceTerm = Switch(steadyStateDictionary.lookup(word("implicitSourceTerm")));
 }
 
 label jacobianCounter = jacobianUpdate;
-std::vector<Eigen::VectorXd> Jstore;
+label propertiesCounter = propertiesUpdate;
 
+std::vector<Eigen::VectorXd> Jstore;
 if (jacobianUpdate != 1)
 {
 	Jstore.resize(mesh.nCells());

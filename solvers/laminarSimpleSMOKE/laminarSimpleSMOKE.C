@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 	#include "readOptions.H"
 	#include "readOptionsSteadyState.H"
 
-	linearModel linear_model(*thermodynamicsMapXML);
+	linearModel linear_model(*thermodynamicsMapXML, *kineticsMapXML);
 	
 	#include "createChemicalFields.H"
 	#include "createFvOptions.H"
@@ -97,8 +97,9 @@ int main(int argc, char *argv[])
          {
             #include "UEqn.H"
 
-	    #include "properties.H"
+	    #include "updateProperties.H"
 	    #include "jacobianEvaluation.H"
+
             #include "YEqn.H"
 	    #include "TEqn.H"
             #include "pEqn.H"
