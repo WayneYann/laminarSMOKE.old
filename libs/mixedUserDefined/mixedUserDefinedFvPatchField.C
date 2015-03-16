@@ -42,7 +42,9 @@ mixedUserDefinedFvPatchField<Type>::mixedUserDefinedFvPatchField
     fvPatchField<Type>(p, iF),
     alfa_(p.size()),
     beta_(p.size()),
-    omega0_(p.size())
+    eta_(p.size()),
+    omega0_(p.size()),
+    rho0_(p.size())
 {}
 
 
@@ -58,7 +60,9 @@ mixedUserDefinedFvPatchField<Type>::mixedUserDefinedFvPatchField
     fvPatchField<Type>(ptf, p, iF, mapper),
     alfa_(ptf.alfa_, mapper),
     beta_(ptf.beta_, mapper),
-    omega0_(ptf.omega0_, mapper)
+    eta_(ptf.eta_, mapper),
+    omega0_(ptf.omega0_, mapper),
+    rho0_(ptf.rho0_, mapper)
 {/*
     if (&iF && mapper.hasUnmapped())
     {
@@ -92,7 +96,9 @@ mixedUserDefinedFvPatchField<Type>::mixedUserDefinedFvPatchField
     fvPatchField<Type>(p, iF, dict),
     alfa_("alfa", dict, p.size()),
     beta_("beta", dict, p.size()),
-    omega0_("omega0", dict, p.size())
+    eta_("eta", dict, p.size()),
+    omega0_("omega0", dict, p.size()),
+    rho0_("rho0", dict, p.size())
 {
     evaluate();
 }
@@ -107,7 +113,9 @@ mixedUserDefinedFvPatchField<Type>::mixedUserDefinedFvPatchField
     fvPatchField<Type>(ptf),
     alfa_(ptf.alfa_),
     beta_(ptf.beta_),
-    omega0_(ptf.omega0_)
+    eta_(ptf.eta_),
+    omega0_(ptf.omega0_),
+    rho0_(ptf.rho0_)
 {}
 
 
@@ -121,7 +129,9 @@ mixedUserDefinedFvPatchField<Type>::mixedUserDefinedFvPatchField
     fvPatchField<Type>(ptf, iF),
     alfa_(ptf.alfa_),
     beta_(ptf.beta_),
-    omega0_(ptf.omega0_)
+    eta_(ptf.eta_),
+    omega0_(ptf.omega0_),
+    rho0_(ptf.rho0_)
 {}
 
 
@@ -136,7 +146,9 @@ void mixedUserDefinedFvPatchField<Type>::autoMap
     fvPatchField<Type>::autoMap(m);
     alfa_.autoMap(m);
     beta_.autoMap(m);
+    eta_.autoMap(m);
     omega0_.autoMap(m);
+    rho0_.autoMap(m);
 }
 
 
@@ -154,7 +166,9 @@ void mixedUserDefinedFvPatchField<Type>::rmap
 
     alfa_.rmap(mptf.alfa_, addr);
     beta_.rmap(mptf.beta_, addr);
+    eta_.rmap(mptf.eta_, addr);
     omega0_.rmap(mptf.omega0_, addr);
+    rho0_.rmap(mptf.rho0_, addr);
 }
 
 
@@ -168,7 +182,7 @@ void mixedUserDefinedFvPatchField<Type>::evaluate(const Pstream::commsTypes)
 
     Field<Type>::operator=
     (
-	Type(pTraits<Type>::one)*( alfa_ / (alfa_+beta_)*omega0_ ) + beta_/(alfa_+beta_)*this->patchInternalField()
+	Type(pTraits<Type>::one)*( eta_*alfa_ / (alfa_+beta_)*omega0_ ) + beta_/(alfa_+beta_)*this->patchInternalField()
     );
 
     fvPatchField<Type>::evaluate();
@@ -178,8 +192,8 @@ void mixedUserDefinedFvPatchField<Type>::evaluate(const Pstream::commsTypes)
 template<class Type>
 tmp<Field<Type> > mixedUserDefinedFvPatchField<Type>::snGrad() const
 {
-    return Type(pTraits<Type>::one)*( alfa_ / (alfa_+beta_)*omega0_ )*this->patch().deltaCoeffs()
-		-(alfa_/(alfa_+beta_))*this->patch().deltaCoeffs()*this->patchInternalField() ;
+    return Type(pTraits<Type>::one)*( eta_*alfa_ / (alfa_+beta_)*omega0_ )*this->patch().deltaCoeffs()
+		-(eta_*alfa_/(alfa_+beta_))*this->patch().deltaCoeffs()*this->patchInternalField() ;
 }
 
 
@@ -199,21 +213,21 @@ tmp<Field<Type> > mixedUserDefinedFvPatchField<Type>::valueBoundaryCoeffs
     const tmp<scalarField>&
 ) const
 {
-    return Type(pTraits<Type>::one)*( alfa_ / (alfa_+beta_)*omega0_ );
+    return Type(pTraits<Type>::one)*( eta_*alfa_ / (alfa_+beta_)*omega0_ );
 }
 
 
 template<class Type>
 tmp<Field<Type> > mixedUserDefinedFvPatchField<Type>::gradientInternalCoeffs() const
 {
-    return -Type(pTraits<Type>::one)*(alfa_/(alfa_+beta_))*this->patch().deltaCoeffs();
+    return -Type(pTraits<Type>::one)*(eta_*alfa_/(alfa_+beta_))*this->patch().deltaCoeffs();
 }
 
 
 template<class Type>
 tmp<Field<Type> > mixedUserDefinedFvPatchField<Type>::gradientBoundaryCoeffs() const
 {
-    return Type(pTraits<Type>::one)*( alfa_ / (alfa_+beta_)*omega0_ )*this->patch().deltaCoeffs();
+    return Type(pTraits<Type>::one)*( eta_*alfa_ / (alfa_+beta_)*omega0_ )*this->patch().deltaCoeffs();
 }
 
 
@@ -223,7 +237,9 @@ void mixedUserDefinedFvPatchField<Type>::write(Ostream& os) const
     fvPatchField<Type>::write(os);
     alfa_.writeEntry("alfa", os);
     beta_.writeEntry("beta", os);
+    eta_.writeEntry("eta", os);
     omega0_.writeEntry("omega0", os);
+    rho0_.writeEntry("rho0", os);
     this->writeEntry("value", os);
 }
 

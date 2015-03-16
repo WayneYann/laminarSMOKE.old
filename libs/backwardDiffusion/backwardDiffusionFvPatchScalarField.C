@@ -38,9 +38,11 @@ Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
 :
     mixedUserDefinedFvPatchScalarField(p, iF)
 {
-	alfa() = 0.0;
-	beta() = 0.0;
+	alfa()   = 0.0;
+	beta()   = 0.0;
+        eta()    = 0.0;
 	omega0() = 0.0;
+	rho0()   = 0.0;
 }
 
 
@@ -67,9 +69,11 @@ Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
 {
     // Set the nominal value
     omega0() = scalarField("omega0", dict, p.size());
+    rho0()   = scalarField("rho0", dict, p.size());
 
     // Fixed value condition is forced
     alfa() = 1000.;
+    eta()  = 1.;
     const double Dmix = 1e-10;
     beta() = Dmix*this->patch().deltaCoeffs();
 
@@ -144,6 +148,9 @@ void Foam::backwardDiffusionFvPatchScalarField::updateCoeffs()
     tmp<vectorField> n = patch().nf();
     alfa() = -(n & U.boundaryField()[patchi]);
 
+    const volScalarField& rho = db().lookupObject<volScalarField>("rho");
+    eta() = rho0() / rho.boundaryField()[patchi];
+
     nameInternal_ = dimensionedInternalField().name();
     const volScalarField& Dmix = db().lookupObject<volScalarField>("gas::Dmix_" + nameInternal_);
     beta() = Dmix.boundaryField()[patchi]*this->patch().deltaCoeffs();
@@ -159,6 +166,7 @@ void Foam::backwardDiffusionFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchScalarField::write(os);
     omega0().writeEntry("omega0", os);
+    rho0().writeEntry("rho0", os);
     writeEntry("value", os);
 }
 

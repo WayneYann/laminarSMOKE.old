@@ -66,6 +66,12 @@ if(speciesEquations == true)
     Y[inertIndex] = scalar(1.0) - Yt;
     Y[inertIndex].max(0.0);
 
+//    for (label i=0; i<Y.size(); i++)
+//    {
+//	volScalarField& Yi = Y[i];
+//	Yi /= Yt;
+//    }
+
     double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 	
     Info << "Transport equations of species solved in " << tEnd - tStart << " s " << endl;

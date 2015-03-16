@@ -91,7 +91,9 @@ class mixedUserDefinedFvPatchField
     // Private data
     scalarField alfa_;
     scalarField beta_;
+    scalarField eta_;
     scalarField omega0_;
+    scalarField rho0_;
 
 public:
 
@@ -195,6 +197,16 @@ public:
                 return beta_;
             }
 
+            virtual scalarField& eta()
+            {
+                return eta_;
+            }
+
+            virtual const scalarField& eta() const
+            {
+                return eta_;
+            }
+
             virtual scalarField& omega0()
             {
                 return omega0_;
@@ -203,6 +215,16 @@ public:
             virtual const scalarField& omega0() const
             {
                 return omega0_;
+            }
+
+            virtual scalarField& rho0()
+            {
+                return rho0_;
+            }
+
+            virtual const scalarField& rho0() const
+            {
+                return rho0_;
             }
 
 
