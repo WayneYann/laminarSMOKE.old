@@ -26,7 +26,7 @@
 				if (sparseJacobian == false)
 					linear_model.reactionJacobian( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
 				else
-					linear_model.reactionJacobianSparse( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
+					linear_model.reactionJacobianSparse( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J, energyEquation, speciesEquations);
 
 				for(int i=0;i<NC+1;i++)
 					sourceImplicit[i].internalField()[celli] = J(i);
@@ -67,7 +67,7 @@
 					if (sparseJacobian == false)
 						linear_model.reactionJacobian( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
 					else
-						linear_model.reactionJacobianSparse( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J );
+						linear_model.reactionJacobianSparse( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], J, energyEquation, speciesEquations );
 
 					Jstore[celli] = J;
 				}
@@ -108,7 +108,7 @@
 					y[i+1] = Y[i].internalField()[celli];
 				y[NC+1] = TCells[celli];
 
-				linear_model.reactionSourceTerms(	*thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], Source);
+				linear_model.reactionSourceTerms( *thermodynamicsMapXML, *kineticsMapXML, y, pCells[celli], Source );
 
 				for(int i=0;i<NC+1;i++)
 					sourceImplicit[i].internalField()[celli] = 0.;

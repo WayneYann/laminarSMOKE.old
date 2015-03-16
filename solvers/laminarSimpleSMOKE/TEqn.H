@@ -46,6 +46,8 @@
 		}
     }
 
+    T.max(270.);
+    T.min(5000.);
     Info<< " * T gas min/max (after transport)   = " << min(T).value() << ", " << max(T).value() << endl;
 
     // Spark

@@ -55,6 +55,7 @@ enum { DIFFUSIVITY_MODEL_MULTICOMPONENT, DIFFUSIVITY_MODEL_LEWIS_NUMBERS} diffus
 
 // Physical model
 Switch energyEquation;
+Switch speciesEquations;
 Switch homogeneousReactions;
 Switch iMassDiffusionInEnergyEquation;
 Switch constPressureBatchReactor;
@@ -68,6 +69,7 @@ scalar thermodynamicPressure = 101325.;
 const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel");
 {
 	energyEquation = Switch(physicalModelDictionary.lookup(word("energyEquation")));
+	speciesEquations = Switch(physicalModelDictionary.lookup(word("speciesEquations")));
 	homogeneousReactions = Switch(physicalModelDictionary.lookup(word("homogeneousReactions")));
 	includeDpDt = Switch(physicalModelDictionary.lookup(word("includeDpDt")));
 	iMassDiffusionInEnergyEquation = Switch(physicalModelDictionary.lookup(word("massDiffusionInEnergyEquation")));

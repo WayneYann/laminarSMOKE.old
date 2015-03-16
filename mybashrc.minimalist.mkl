@@ -8,7 +8,7 @@ export RAPIDXML_LIBRARY_PATH=$HOME/NumericalLibraries/RapidXML/rapidxml-1.13
 export OPENSMOKE_LIBRARY_PATH=$HOME/Development/MyCodes/OpenSMOKEpp/source
 
 #Options: ISAT support
-export ISAT_SUPPORT='-DOPENSMOKE_USE_ISAT=1'
+export ISAT_SUPPORT='-DOPENSMOKE_USE_ISAT=0'
 export ISAT_INCLUDE=$HOME/NumericalLibraries/ISATLib/src
 export ISAT_LIBS=$HOME/NumericalLibraries/ISATLib/lib/libISATLib_gcc_mkl_64bit.a
 
@@ -17,7 +17,7 @@ export MKL_SUPPORT='-DOPENSMOKE_USE_MKL=1'
 export EXTERNAL_ODE_SOLVERS=
 
 #Only if the OPENSMOKE_USE_MKL is turned on
-export MKL_PATH=/opt/intel/mkl
+export MKL_PATH=$HOME/intel/mkl
 export MKL_INCLUDE='$(MKL_PATH)/include'
 export MKL_LIBS='-Wl,--start-group $(MKL_PATH)/lib/intel64/libmkl_intel_lp64.a $(MKL_PATH)/lib/intel64/libmkl_core.a $(MKL_PATH)/lib/intel64/libmkl_sequential.a -Wl,--end-group -lpthread -lm'
 

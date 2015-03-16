@@ -1,5 +1,4 @@
-// Mass Fluxes
-#include "fluxes.H"
+
 
 // Discretization schemes
 tmp<fv::convectionScheme<scalar> > mvConvection
@@ -13,6 +12,7 @@ tmp<fv::convectionScheme<scalar> > mvConvection
     )
 );
 
+if(speciesEquations == true)
 {
     double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();
     

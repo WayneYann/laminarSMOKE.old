@@ -29,7 +29,7 @@ public:
 
 	void reactionJacobianSparse( 	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_,
 		       			const OpenSMOKE::OpenSMOKEVectorDouble& y, const double P0,
-		       			Eigen::VectorXd &J);
+		       			Eigen::VectorXd &J, const bool energyEquation, const bool speciesEquations);
 
 private:
 
@@ -133,23 +133,26 @@ void linearModel::reactionJacobian( OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>
 
 void linearModel::reactionJacobianSparse( OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_,
 		       const OpenSMOKE::OpenSMOKEVectorDouble& y, const double P0,
-		       Eigen::VectorXd &J) 
+		       Eigen::VectorXd &J, const bool energyEquation, const bool speciesEquations) 
 {
 	J.setConstant(0.);
 
 	// Sparse Jacobian
+	if (speciesEquations == true)
 	{
 		// Recover mass fractions
 		for(unsigned int i=1;i<=NC_;++i)
 			omega_[i] = max(y[i], 0.);
 		const double T = y[NC_+1];
 
+		kineticsMap_.jacobian_sparsity_pattern_map()->SetEpsilon(1e-13); 
 		kineticsMap_.jacobian_sparsity_pattern_map()->Jacobian(omega_, T, P0, Jdiagonal_);
 		for(unsigned int i=0;i<NC_;++i)
 			J(i) = Jdiagonal_(i) * thermodynamicsMap_.MW()[i+1];
 	}
 
 	// Only with respect to the temperature
+	if (energyEquation == true)
 	{
 		// Calculated as suggested by Buzzi (private communication)
 		const double ZERO_DER = std::sqrt(OPENSMOKE_TINY_FLOAT);

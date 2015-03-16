@@ -159,7 +159,7 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 					mesh.time().timeName(),
 					mesh,
 					IOobject::NO_READ,
-					IOobject::AUTO_WRITE
+					IOobject::NO_WRITE
 				),
 				mesh,
 				dimensionedScalar("SI", dimensionSet(1, -3, -1, 0, 0), 0.0)
@@ -177,7 +177,7 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 					mesh.time().timeName(),
 					mesh,
 					IOobject::NO_READ,
-					IOobject::AUTO_WRITE
+					IOobject::NO_WRITE
 				),
 				mesh,
 				dimensionedScalar("SE", dimensionSet(1, -3, -1, 0, 0), 0.0)
@@ -196,7 +196,7 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 				mesh.time().timeName(),
 				mesh,
 				IOobject::NO_READ,
-				IOobject::AUTO_WRITE
+				IOobject::NO_WRITE
 			),
 			mesh,
 			dimensionedScalar("SIT", dimensionSet(1, -1, -3, -1, 0), 0.0)
@@ -214,7 +214,7 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 				mesh.time().timeName(),
 				mesh,
 				IOobject::NO_READ,
-				IOobject::AUTO_WRITE
+				IOobject::NO_WRITE
 			),
 			mesh,
 			dimensionedScalar("SET", dimensionSet(1, -1, -3, 0, 0), 0.0)

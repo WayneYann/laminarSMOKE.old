@@ -100,8 +100,9 @@ int main(int argc, char *argv[])
 	    #include "updateProperties.H"
 	    #include "jacobianEvaluation.H"
 
+	    #include "fluxes.H"
             #include "YEqn.H"
-	    #include "TEqn.H"
+	    #include "TEqn.H" 
             #include "pEqn.H"
          }	
 				
