@@ -18,8 +18,10 @@ if(speciesEquations == true)
     
     volScalarField Yt = 0.0*Y[0];
 
-    for (label i=0; i<Y.size(); i++)
+    for (label j=0; j<Y.size(); j++)
     {
+	label i = species_order[j];
+
         if (i != inertIndex)
         {
            	volScalarField& Yi = Y[i];
@@ -66,11 +68,18 @@ if(speciesEquations == true)
     Y[inertIndex] = scalar(1.0) - Yt;
     Y[inertIndex].max(0.0);
 
+    if (species_order_policy == SPECIES_ORDER_POLICY_SWEEP)
+    	std::reverse(species_order.begin(),species_order.end());
+    else if (species_order_policy == SPECIES_ORDER_POLICY_RANDOM_SHUFFLE)
+    	std::random_shuffle ( species_order.begin(), species_order.end() );
+    else if (species_order_policy == SPECIES_ORDER_POLICY_ROTATE)
+	std::rotate(species_order.begin(),species_order.begin()+1,species_order.end());
+
 //    for (label i=0; i<Y.size(); i++)
 //    {
 //	volScalarField& Yi = Y[i];
 //	Yi /= Yt;
-//    }
+ //   }
 
     double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 	

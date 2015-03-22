@@ -12,6 +12,38 @@ PtrList<volScalarField> sourceImplicit(thermodynamicsMapXML->NumberOfSpecies()+1
 PtrList<volScalarField> sourceExplicit(thermodynamicsMapXML->NumberOfSpecies()+1);
 #endif
 
+PtrList<volScalarField> Dsoret(transportMapXML->iThermalDiffusionRatios().size());
+if (soretEffect == true)
+{
+	for(unsigned int i=0;i<transportMapXML->iThermalDiffusionRatios().size();i++)
+	{ 
+		unsigned int index = transportMapXML->iThermalDiffusionRatios()[i];
+		indexSoret[index-1] = i;
+		soretEffectList[index-1] = true;
+
+		std::cout << "Soret effect: species " 	<< i+1 << "/" << transportMapXML->iThermalDiffusionRatios().size() 
+							<< " " << thermodynamicsMapXML->NamesOfSpecies()[index-1] << " (" << index << ")" << std::endl;
+
+		Dsoret.set
+		(
+			i,
+			new volScalarField
+			(
+				IOobject
+				(
+					"gas::Dsoret_"+ thermodynamicsMapXML->NamesOfSpecies()[index-1],
+					mesh.time().timeName(),
+					mesh,
+					IOobject::NO_READ,
+					IOobject::AUTO_WRITE
+				),
+				mesh,
+				dimensionedScalar("Dsoret", dimensionSet(0, 2, -1, 0, 0), 1e-10)
+			)
+		);
+	}
+}
+
 // Loop over all the species in the kinetic mechanism
 for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 {
@@ -41,7 +73,7 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 				IOobject::NO_WRITE
 			),
 			mesh,
-			dimensionSet(0, 2, -1, 0, 0)
+			dimensionedScalar("Dmix", dimensionSet(0, 2, -1, 0, 0), 1e-10)
 			)
 		);
 
@@ -223,38 +255,6 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 
 	#endif
 }
- 
 
-PtrList<volScalarField> Dsoret(transportMapXML->iThermalDiffusionRatios().size());
-if (soretEffect == true)
-{
-	for(unsigned int i=0;i<transportMapXML->iThermalDiffusionRatios().size();i++)
-	{ 
-		unsigned int index = transportMapXML->iThermalDiffusionRatios()[i];
-		indexSoret[index-1] = i;
-		soretEffectList[index-1] = true;
-
-		std::cout << "Soret effect: species " 	<< i+1 << "/" << transportMapXML->iThermalDiffusionRatios().size() 
-							<< " " << thermodynamicsMapXML->NamesOfSpecies()[index-1] << " (" << index << ")" << std::endl;
-
-		Dsoret.set
-		(
-			i,
-			new volScalarField
-			(
-				IOobject
-				(
-					"gas::Dsoret_"+ thermodynamicsMapXML->NamesOfSpecies()[index-1],
-					mesh.time().timeName(),
-					mesh,
-					IOobject::NO_READ,
-					IOobject::AUTO_WRITE
-				),
-				mesh,
-				dimensionSet(0, 2, -1, 0, 0)
-			)
-		);
-	}
-}
 
 #include "createFluxes.H"

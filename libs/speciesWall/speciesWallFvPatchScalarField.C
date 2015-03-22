@@ -23,14 +23,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "backwardDiffusionFvPatchScalarField.H"
+#include "speciesWallFvPatchScalarField.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvPatchFieldMapper.H"
 #include "fvCFD.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
+Foam::speciesWallFvPatchScalarField::speciesWallFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
@@ -41,17 +41,17 @@ Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
 	alfa()    = 0.0;
 	beta()    = 0.0;
         eta()     = 0.0;
+	epsilon() = 0.0;
 	omega0()  = 0.0;
 	rho0()    = 0.0;
-        epsilon() = 0.0;
         nameInternal_ = dimensionedInternalField().name();
         iSoret()  = db().foundObject<volScalarField>("gas::Dsoret_" + nameInternal_);
 }
 
 
-Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
+Foam::speciesWallFvPatchScalarField::speciesWallFvPatchScalarField
 (
-    const backwardDiffusionFvPatchScalarField& ptf,
+    const speciesWallFvPatchScalarField& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -61,7 +61,7 @@ Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
 {}
 
 
-Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
+Foam::speciesWallFvPatchScalarField::speciesWallFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -74,20 +74,18 @@ Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
     nameInternal_ = dimensionedInternalField().name();
 
     // Set the nominal value
-    omega0() = scalarField("omega0", dict, p.size());
-    rho0()   = scalarField("rho0", dict, p.size());
-
-    // Fixed value condition is forced
-    alfa() = 1000.;
-    eta()  = 1.;
-
-    // Calculating epsilon
-    epsilon() = 0;
-    iSoret()  = db().foundObject<volScalarField>("gas::Dsoret_" + dimensionedInternalField().name());
+    omega0() = 0;
+    rho0()   = 0;
+    alfa()   = 0.;
+    eta()    = 0.;
 
     // Calculating beta
     const double Dmix = 1e-10;
     beta() = Dmix*this->patch().deltaCoeffs();
+ 
+    // Calculating epsilon
+    epsilon() = 0;
+    iSoret()  = db().foundObject<volScalarField>("gas::Dsoret_" + dimensionedInternalField().name());
 
     // Read value if available
     if (dict.found("value"))
@@ -104,18 +102,18 @@ Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
 }
 
 
-Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
+Foam::speciesWallFvPatchScalarField::speciesWallFvPatchScalarField
 (
-    const backwardDiffusionFvPatchScalarField& tppsf
+    const speciesWallFvPatchScalarField& tppsf
 )
 :
     mixedUserDefinedFvPatchScalarField(tppsf)
 {}
 
 
-Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
+Foam::speciesWallFvPatchScalarField::speciesWallFvPatchScalarField
 (
-    const backwardDiffusionFvPatchScalarField& tppsf,
+    const speciesWallFvPatchScalarField& tppsf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
@@ -125,7 +123,7 @@ Foam::backwardDiffusionFvPatchScalarField::backwardDiffusionFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::backwardDiffusionFvPatchScalarField::autoMap
+void Foam::speciesWallFvPatchScalarField::autoMap
 (
     const fvPatchFieldMapper& m
 )
@@ -134,7 +132,7 @@ void Foam::backwardDiffusionFvPatchScalarField::autoMap
 }
 
 
-void Foam::backwardDiffusionFvPatchScalarField::rmap
+void Foam::speciesWallFvPatchScalarField::rmap
 (
     const fvPatchScalarField& ptf,
     const labelList& addr
@@ -142,49 +140,42 @@ void Foam::backwardDiffusionFvPatchScalarField::rmap
 {
     mixedUserDefinedFvPatchScalarField::rmap(ptf, addr);
 
-//    const backwardDiffusionFvPatchScalarField& tiptf =
-//        refCast<const backwardDiffusionFvPatchScalarField>(ptf);
+//    const speciesWallFvPatchScalarField& tiptf =
+//        refCast<const speciesWallFvPatchScalarField>(ptf);
 }
 
 
-void Foam::backwardDiffusionFvPatchScalarField::updateCoeffs()
+void Foam::speciesWallFvPatchScalarField::updateCoeffs()
 {
     if (updated())
     {
         return;
     }
 
+    // Theve variables are kept equal to 0
+    omega0() = 0.;
+    rho0()   = 0.;
+    eta()    = 0.;
+    alfa()   = 0.;	
+    
+    // Name of field
     const label patchi = patch().index();
 
-    // Calculating alfa
-    const volVectorField& U = db().lookupObject<volVectorField>("U");
-    tmp<vectorField> n = patch().nf();
-    alfa() = -(n & U.boundaryField()[patchi]);
+    // Calculating beta    
+    const volScalarField& Dmix = db().lookupObject<volScalarField>("gas::Dmix_" + nameInternal_);
+    beta() = Dmix.boundaryField()[patchi]*this->patch().deltaCoeffs();
     
-    // Calculating eta
-    const volScalarField& rho = db().lookupObject<volScalarField>("rho");
-    eta() = rho0() / rho.boundaryField()[patchi];
-
-//    Info << "in out " << nameInternal_ << " " << dimensionedInternalField().name() << " " << iSoret() << endl;
         nameInternal_ = dimensionedInternalField().name();
         iSoret()  = db().foundObject<volScalarField>("gas::Dsoret_" + nameInternal_);
+//    Info << "species Wall " << nameInternal_ << " " << dimensionedInternalField().name() << " " << iSoret() << endl;
 
     // Calculating epsilon
     if (iSoret() == true)
     {
-        const volScalarField& Dsoret = db().lookupObject<volScalarField>("gas::Dsoret_" + nameInternal_);
+    	const volScalarField& Dsoret = db().lookupObject<volScalarField>("gas::Dsoret_" + nameInternal_);
     	const volScalarField& T = db().lookupObject<volScalarField>("T");
     	epsilon() = -T.boundaryField()[patchi].snGrad() / T.boundaryField()[patchi] * Dsoret.boundaryField()[patchi];
     }
-    else
-    { 
-	epsilon() = 0.;
-    }
-
-    // Calculating beta
-    nameInternal_ = dimensionedInternalField().name();
-    const volScalarField& Dmix = db().lookupObject<volScalarField>("gas::Dmix_" + nameInternal_);
-    beta() = Dmix.boundaryField()[patchi]*this->patch().deltaCoeffs();
 
     if (debug)
     {
@@ -193,11 +184,9 @@ void Foam::backwardDiffusionFvPatchScalarField::updateCoeffs()
     mixedUserDefinedFvPatchScalarField::updateCoeffs();
 }
 
-void Foam::backwardDiffusionFvPatchScalarField::write(Ostream& os) const
+void Foam::speciesWallFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchScalarField::write(os);
-    omega0().writeEntry("omega0", os);
-    rho0().writeEntry("rho0", os);
     writeEntry("value", os);
 }
 
@@ -209,7 +198,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchScalarField,
-        backwardDiffusionFvPatchScalarField
+        speciesWallFvPatchScalarField
     );
 }
 

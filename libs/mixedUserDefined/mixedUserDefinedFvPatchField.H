@@ -92,8 +92,11 @@ class mixedUserDefinedFvPatchField
     scalarField alfa_;
     scalarField beta_;
     scalarField eta_;
+    scalarField epsilon_;
     scalarField omega0_;
     scalarField rho0_;
+	
+    bool iSoret_;
 
 public:
 
@@ -207,6 +210,16 @@ public:
                 return eta_;
             }
 
+	    virtual scalarField& epsilon()
+            {
+                return epsilon_;
+            }
+
+            virtual const scalarField& epsilon() const
+            {
+                return epsilon_;
+            }
+
             virtual scalarField& omega0()
             {
                 return omega0_;
@@ -227,7 +240,15 @@ public:
                 return rho0_;
             }
 
+	    virtual bool& iSoret()
+            {
+                return iSoret_;
+            }
 
+            virtual const bool& iSoret() const
+            {
+                return iSoret_;
+            }
         // Mapping functions
 
             //- Map (and resize as needed) from self given a mapping object

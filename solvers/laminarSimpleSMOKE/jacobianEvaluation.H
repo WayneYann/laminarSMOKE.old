@@ -1,3 +1,4 @@
+if (homogeneousReactions == true && (speciesEquations == true || energyEquation == true))
 {
 	if (implicitSourceTerm == true && jacobianUpdate == 1)
 	{
