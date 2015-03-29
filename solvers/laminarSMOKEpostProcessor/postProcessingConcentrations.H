@@ -1,4 +1,5 @@
 // Post processing: concentrations
+if (iConcentrations == true)
 {
 	label ns = Y.size();
 

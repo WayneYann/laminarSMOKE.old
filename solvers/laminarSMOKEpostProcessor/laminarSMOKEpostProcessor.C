@@ -110,6 +110,9 @@ Notes
 #include "IOsampledSets.H"
 #include "IOsampledSurfaces.H"
 
+// Soot
+#include "PolimiSootAnalyzer.H"
+
 using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -171,6 +174,7 @@ int main(int argc, char *argv[])
 	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>* thermodynamicsMapXML; 
 	OpenSMOKE::KineticsMap_CHEMKIN<double>* kineticsMapXML;
 	OpenSMOKE::TransportPropertiesMap_CHEMKIN<double>* transportMapXML;
+	PolimiSootAnalyzer* sootAnalyzer;
 
 	{	
 		const dictionary& kineticsDictionary = solverOptionsDictionary.subDict("Kinetics");
@@ -189,6 +193,19 @@ int main(int argc, char *argv[])
 		std::cout << " * Time to read XML file: " << tEnd-tStart << std::endl;
 	}
 
+	bool iMoleFractions = false;
+	bool iConcentrations = false;
+	bool iPolimiSoot = true;
+
+
+	
+	if (iPolimiSoot == true)
+	{
+		sootAnalyzer = new PolimiSootAnalyzer(thermodynamicsMapXML);
+
+		
+	}
+
     	forAll(timeDirs, timeI)
     	{
        		runTime.setTime(timeDirs[timeI], timeI);
@@ -199,6 +216,8 @@ int main(int argc, char *argv[])
 
 		#include "readBasicFields.H"
 		#include "readSpecies.H"
+
+		#include "postProcessingPolimiSoot.H"
 		#include "postProcessingMoleFractions.H"
 		#include "postProcessingConcentrations.H"
 

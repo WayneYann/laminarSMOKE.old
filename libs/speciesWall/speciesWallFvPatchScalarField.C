@@ -45,7 +45,6 @@ Foam::speciesWallFvPatchScalarField::speciesWallFvPatchScalarField
 	omega0()  = 0.0;
 	rho0()    = 0.0;
         nameInternal_ = dimensionedInternalField().name();
-        iSoret()  = db().foundObject<volScalarField>("gas::Dsoret_" + nameInternal_);
 }
 
 
@@ -85,8 +84,7 @@ Foam::speciesWallFvPatchScalarField::speciesWallFvPatchScalarField
  
     // Calculating epsilon
     epsilon() = 0;
-    iSoret()  = db().foundObject<volScalarField>("gas::Dsoret_" + dimensionedInternalField().name());
-
+ 
     // Read value if available
     if (dict.found("value"))
     {
@@ -152,25 +150,25 @@ void Foam::speciesWallFvPatchScalarField::updateCoeffs()
         return;
     }
 
+    // Name of field
+    nameInternal_ = dimensionedInternalField().name();
+
     // Theve variables are kept equal to 0
     omega0() = 0.;
     rho0()   = 0.;
     eta()    = 0.;
     alfa()   = 0.;	
     
-    // Name of field
+    // Index of patch
     const label patchi = patch().index();
 
     // Calculating beta    
     const volScalarField& Dmix = db().lookupObject<volScalarField>("gas::Dmix_" + nameInternal_);
     beta() = Dmix.boundaryField()[patchi]*this->patch().deltaCoeffs();
     
-        nameInternal_ = dimensionedInternalField().name();
-        iSoret()  = db().foundObject<volScalarField>("gas::Dsoret_" + nameInternal_);
-//    Info << "species Wall " << nameInternal_ << " " << dimensionedInternalField().name() << " " << iSoret() << endl;
-
     // Calculating epsilon
-    if (iSoret() == true)
+    bool soretEffect = db().foundObject<volScalarField>("gas::Dsoret_" + nameInternal_);
+    if (soretEffect == true)
     {
     	const volScalarField& Dsoret = db().lookupObject<volScalarField>("gas::Dsoret_" + nameInternal_);
     	const volScalarField& T = db().lookupObject<volScalarField>("T");

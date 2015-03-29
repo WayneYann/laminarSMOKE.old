@@ -95,8 +95,6 @@ class mixedUserDefinedFvPatchField
     scalarField epsilon_;
     scalarField omega0_;
     scalarField rho0_;
-	
-    bool iSoret_;
 
 public:
 
@@ -240,15 +238,6 @@ public:
                 return rho0_;
             }
 
-	    virtual bool& iSoret()
-            {
-                return iSoret_;
-            }
-
-            virtual const bool& iSoret() const
-            {
-                return iSoret_;
-            }
         // Mapping functions
 
             //- Map (and resize as needed) from self given a mapping object

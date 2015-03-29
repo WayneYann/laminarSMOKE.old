@@ -331,4 +331,7 @@ OpenSMOKE::ODE_Parameters odeParameterBatchReactorHomogeneous;
 #endif
 #endif
 
+label minMaxUpdate  = 25;
+label minMaxCounter = minMaxUpdate;
+
 Info<< "Solver options correctly read\n" << endl;

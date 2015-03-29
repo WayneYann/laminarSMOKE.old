@@ -1,9 +1,13 @@
 PtrList<volScalarField> Y;
-PtrList<volScalarField> X;
-PtrList<volScalarField> C;
 Y.resize(thermodynamicsMapXML->NumberOfSpecies());
-X.resize(thermodynamicsMapXML->NumberOfSpecies());
-C.resize(thermodynamicsMapXML->NumberOfSpecies());
+
+PtrList<volScalarField> X;
+if (iMoleFractions == true)
+	X.resize(thermodynamicsMapXML->NumberOfSpecies());
+
+PtrList<volScalarField> C;
+if (iConcentrations == true)
+	C.resize(thermodynamicsMapXML->NumberOfSpecies());
 
 {
 	Info<< "Reading species..." << endl;
@@ -72,39 +76,45 @@ C.resize(thermodynamicsMapXML->NumberOfSpecies());
 			);
 		}
 
-		X.set
-		(
-			i,
-			new volScalarField
+		if (iConcentrations == true)
+		{
+			X.set
 			(
-				IOobject
+				i,
+				new volScalarField
 				(
-					"x::" + thermodynamicsMapXML->NamesOfSpecies()[i],
-					mesh.time().timeName(),
-					mesh,
-					IOobject::NO_READ,
-					IOobject::NO_WRITE
-				),
-				Y[i]
-			)
-		);
+					IOobject
+					(
+						"x::" + thermodynamicsMapXML->NamesOfSpecies()[i],
+						mesh.time().timeName(),
+						mesh,
+						IOobject::NO_READ,
+						IOobject::NO_WRITE
+					),
+					Y[i]
+				)
+			);
+		}
 
-		C.set
-		(
-			i,
-			new volScalarField
+		if (iConcentrations == true)
+		{
+			C.set
 			(
-				IOobject
+				i,
+				new volScalarField
 				(
-					"c::" + thermodynamicsMapXML->NamesOfSpecies()[i],
-					mesh.time().timeName(),
+					IOobject
+					(
+						"c::" + thermodynamicsMapXML->NamesOfSpecies()[i],
+						mesh.time().timeName(),
+						mesh,
+						IOobject::NO_READ,
+						IOobject::NO_WRITE
+					),
 					mesh,
-					IOobject::NO_READ,
-					IOobject::NO_WRITE
-				),
-				mesh,
-				dimensionSet(0, -3, 0, 0, 1)
-			)
-		);
+					dimensionSet(0, -3, 0, 0, 1)
+				)
+			);
+		}
 	}
 }

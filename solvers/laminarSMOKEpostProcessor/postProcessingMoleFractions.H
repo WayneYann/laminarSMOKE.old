@@ -1,4 +1,5 @@
 // Post processing: mole fractions
+if (iMoleFractions == true)
 {
 	label ns = Y.size();
 
