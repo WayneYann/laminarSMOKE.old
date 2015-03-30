@@ -372,15 +372,17 @@ if (iPolimiSoot == true)
 	soot_o_over_h_small.write();	
 
 
-	
+	// Distribution along a boundary
+	for (int i=0;i<polimiSootBoundaries.size();i++)
 	{
-		label patchi = mesh.boundaryMesh().findPatchID("hole"); 
+		label patchi = mesh.boundaryMesh().findPatchID(polimiSootBoundaries[i]); 
 
 		const fvPatchScalarField& pT  = T.boundaryField()[patchi];
 		const fvPatchScalarField& pp  = p.boundaryField()[patchi];
 		const vectorField& faceCentres = mesh.Cf().boundaryField()[patchi];
 
-		std::ofstream fOutput("SootDistribution.out", std::ios::out);
+		const std::string file_name = "SootDistribution." + polimiSootBoundaries[i] + ".out";
+		std::ofstream fOutput(file_name.c_str(), std::ios::out);
 		fOutput.setf(std::ios::scientific);
 		sootAnalyzer->WriteDistributionLabel(fOutput);
 
@@ -414,7 +416,6 @@ if (iPolimiSoot == true)
 			const double rhoGas = pp[facei]*mw/PhysicalConstants::R_J_kmol/pT[facei];
 
 			// Soot analysis
-			Info << patchi << " " << pT[facei] << " " << pp[facei] << " " << y_eigen.sum() << " " << x_eigen.sum() << endl;
 			sootAnalyzer->Analysis(pT[facei], pp[facei], rhoGas, y_eigen, x_eigen);	
 			sootAnalyzer->Distribution();
 			sootAnalyzer->WriteDistribution(fOutput, face_x);
@@ -422,9 +423,9 @@ if (iPolimiSoot == true)
 		
 		fOutput.close();
 	}
-	/*
+	
+	// Distribution in a specific point
 	{
-		label labelOfClosestCell mesh.findCell(1e-8,);
+		//label labelOfClosestCell mesh.findCell(1e-8,);
 	}
-	*/
 }

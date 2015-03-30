@@ -127,7 +127,6 @@ int main(int argc, char *argv[])
     	instantList timeDirs = timeSelector::select0(runTime, args);
     	#include "createNamedMesh.H"
 
-    	const word postProcessingDictionaryName("postProcessingOptions");
 	const word solverOptionsDictionaryName("solverOptions");
 
 	Info<< "Reading field U\n" << endl;
@@ -150,19 +149,6 @@ int main(int argc, char *argv[])
 		IOobject
 		(
 			solverOptionsDictionaryName,
-			U.time().constant(),
-			U.db(),
-			IOobject::MUST_READ,
-			IOobject::NO_WRITE
-		)
-	);
-
-	Info<< "Reading postProcessingOptions dictionary\n" << endl;
-	IOdictionary postProcessingDictionary
-	(
-		IOobject
-		(
-			postProcessingDictionaryName,
 			U.time().constant(),
 			U.db(),
 			IOobject::MUST_READ,
@@ -195,15 +181,30 @@ int main(int argc, char *argv[])
 
 	bool iMoleFractions = false;
 	bool iConcentrations = false;
-	bool iPolimiSoot = true;
+	bool iMixtureFraction = false;
+	bool iPolimiSoot = false;
+	List<word> polimiSootBoundaries;
+
+	{	
+		const dictionary& postProcessingDictionary = solverOptionsDictionary.subDict("PostProcessing");
+		
+		iMoleFractions = Switch(postProcessingDictionary.lookup(word("moleFractions")));
+		iConcentrations = Switch(postProcessingDictionary.lookup(word("concentrations")));
+		iMixtureFraction = Switch(postProcessingDictionary.lookup(word("mixtureFraction")));
+		iPolimiSoot = Switch(postProcessingDictionary.lookup(word("soot")));
+
+		if (iPolimiSoot == true)
+		{
+			const dictionary& postProcessingPolimiSootDictionary = postProcessingDictionary.subDict("PolimiSoot");
+			polimiSootBoundaries = List<word>(postProcessingPolimiSootDictionary.lookup("boundaries"));
+		}
+	}
 
 
 	
 	if (iPolimiSoot == true)
 	{
 		sootAnalyzer = new PolimiSootAnalyzer(thermodynamicsMapXML);
-
-		
 	}
 
     	forAll(timeDirs, timeI)
