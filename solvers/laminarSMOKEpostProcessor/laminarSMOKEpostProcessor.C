@@ -184,6 +184,7 @@ int main(int argc, char *argv[])
 	bool iMixtureFraction = false;
 	bool iPolimiSoot = false;
 	List<word> polimiSootBoundaries;
+	std::vector<int> soot_precursors_indices;
 
 	{	
 		const dictionary& postProcessingDictionary = solverOptionsDictionary.subDict("PostProcessing");
@@ -197,6 +198,39 @@ int main(int argc, char *argv[])
 		{
 			const dictionary& postProcessingPolimiSootDictionary = postProcessingDictionary.subDict("PolimiSoot");
 			polimiSootBoundaries = List<word>(postProcessingPolimiSootDictionary.lookup("boundaries"));
+			List<word> list_soot_precursors = List<word>(postProcessingPolimiSootDictionary.lookup("sootPrecursors"));
+
+			for(unsigned int k=0;k<list_soot_precursors.size();k++)
+			{
+				bool found = false;
+				for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+				{
+					if (list_soot_precursors[k] == thermodynamicsMapXML->NamesOfSpecies()[i])
+					{
+						soot_precursors_indices.push_back(i);
+						found = true;
+					}	
+				}
+				if (found == false)
+				{
+					Info << "The following soot precursor is not included in the kinetic mechanism: " << list_soot_precursors[k] << endl;
+					abort();
+				}
+				else
+				{
+					Info << "Soot precursor " << k+1 << " " << list_soot_precursors[k] << " : index " << soot_precursors_indices[k] << endl;
+				}
+			}
+
+			
+			Foam::string minimum_bin = postProcessingPolimiSootDictionary.lookup("binMinimum");
+			label bin_index_zero     = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexZero"));
+			label bin_index_final    = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexFinal"));
+			scalar bin_density_zero  = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityZero"));
+			scalar bin_density_final = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityFinal"));
+			scalar fractal_diameter = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
+
+			sootAnalyzer = new PolimiSootAnalyzer(thermodynamicsMapXML, minimum_bin, bin_index_zero, bin_index_final, bin_density_zero, bin_density_final, fractal_diameter);
 		}
 	}
 
@@ -204,7 +238,7 @@ int main(int argc, char *argv[])
 	
 	if (iPolimiSoot == true)
 	{
-		sootAnalyzer = new PolimiSootAnalyzer(thermodynamicsMapXML);
+		
 	}
 
     	forAll(timeDirs, timeI)

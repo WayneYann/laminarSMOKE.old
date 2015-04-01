@@ -75,6 +75,13 @@
 					Dmix[i].internalField()[celli] = coefficient/LewisNumbers(i);
 			}
 
+			if (physicalSootDiffusivity == true)
+			{
+				const double DmixReference = Dmix[physicalSootDiffusivityReferenceIndex].internalField()[celli];
+				for(int i=0;i<physicalSootDiffusivityCorrectionIndex.size();i++)
+					Dmix[physicalSootDiffusivityCorrectionIndex[i]].internalField()[celli] = DmixReference*physicalSootDiffusivityCorrection[i];
+			}
+
 			// Thermal diffusion coefficients [-]
 			if (soretEffect == true)
 			{
@@ -161,6 +168,13 @@
 				const double coefficient =  plambda[facei]/(pp[facei]*ppsi[facei])/pcp[facei];
 				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 					Dmix[i].boundaryField()[patchi][facei] = coefficient/LewisNumbers(i);
+			}
+
+			if (physicalSootDiffusivity == true)
+			{
+				const double DmixReference = Dmix[physicalSootDiffusivityReferenceIndex].boundaryField()[patchi][facei];
+				for(int i=0;i<physicalSootDiffusivityCorrectionIndex.size();i++)
+					Dmix[physicalSootDiffusivityCorrectionIndex[i]].boundaryField()[patchi][facei] = DmixReference*physicalSootDiffusivityCorrection[i];
 			}
 
 			// Thermal diffusion coefficients [-]

@@ -61,6 +61,7 @@ Switch iMassDiffusionInEnergyEquation;
 Switch constPressureBatchReactor;
 Switch includeDpDt;
 Switch soretEffect;
+Switch thermophoreticEffect;
 Eigen::VectorXd LewisNumbers;
 std::vector<bool> soretEffectList;
 std::vector<int> indexSoret;
@@ -74,6 +75,9 @@ const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel
 	includeDpDt = Switch(physicalModelDictionary.lookup(word("includeDpDt")));
 	iMassDiffusionInEnergyEquation = Switch(physicalModelDictionary.lookup(word("massDiffusionInEnergyEquation")));
 	
+	// Thermophoretic effect
+	thermophoreticEffect = Switch(physicalModelDictionary.lookup(word("thermophoreticEffect")));
+
 	// Soret effect
 	soretEffect = Switch(physicalModelDictionary.lookup(word("soretEffect")));
 	soretEffectList.resize(thermodynamicsMapXML->NumberOfSpecies());
@@ -184,36 +188,82 @@ const dictionary& radiativeHeatTransferDictionary = solverOptions.subDict("Radia
 }
 
 // Thermophoretic effect
-Switch thermophoreticEffect;
 std::vector<bool> thermophoreticEffectList;
-const dictionary& thermophoreticEffectDictionary = solverOptions.subDict("ThermophoreticEffect");
+Switch physicalSootDiffusivity = false;
+label  physicalSootDiffusivityReferenceIndex = -1;
+std::vector<double> physicalSootDiffusivityCorrection;
+std::vector<int> physicalSootDiffusivityCorrectionIndex;
 { 
-	thermophoreticEffect = Switch(thermophoreticEffectDictionary.lookup(word("thermophoreticEffect")));
-	thermophoreticEffectList.resize(thermodynamicsMapXML->NumberOfSpecies());
-	for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-		thermophoreticEffectList[i] = false;
+	const dictionary& polimiSootDictionary = solverOptions.subDict("PolimiSoot");
 
-	// Populate the list of thermophoretic species
 	if (thermophoreticEffect == true)
 	{
-		word tag = thermophoreticEffectDictionary.lookup(word("thermophoreticEffectTag"));
+		thermophoreticEffectList.resize(thermodynamicsMapXML->NumberOfSpecies());
+		for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+			thermophoreticEffectList[i] = false;
 
-		unsigned int count = 0;
+		// Populate the list of thermophoretic species
+		if (thermophoreticEffect == true)
+		{
+			word tag = polimiSootDictionary.lookup(word("thermophoreticEffectTag"));	
+	
+			unsigned int count = 0;
+			for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+			{
+				std::string name = thermodynamicsMapXML->NamesOfSpecies()[i];
+				std::string prefix = name.substr(0,tag.size());
+				if (prefix == tag)
+				{
+					thermophoreticEffectList[i] = true;
+					count++;
+				}
+			}
+				
+			if (count == 0)
+				std::cout << "Warning: No " << tag << " species were found in the kinetic scheme! Are you sure you want to account for the thermophoretic effect?" << std::endl;
+			else
+				std::cout << "Thermophoretic effect: Number of " << tag << " species found equal to " << count << std::endl;
+		}
+	}
+
+	physicalSootDiffusivity = Switch(polimiSootDictionary.lookup(word("physicalSootDiffusivity")));
+
+	if (physicalSootDiffusivity == true)
+	{
+		//scalar physicalSootDiffusivityExponent = readScalar(polimiSootDictionary.lookup("exponent"));
+		scalar physicalSootDiffusivityExponent = -0.681;
+		label physicalSootDiffusivityIndex = readLabel(polimiSootDictionary.lookup("physicalSootDiffusivityIndex"));
+
 		for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 		{
-			std::string name = thermodynamicsMapXML->NamesOfSpecies()[i];
-			std::string prefix = name.substr(0,tag.size());
-			if (prefix == tag)
+			if (thermodynamicsMapXML->NamesOfSpecies()[i] == "BIN1A")
 			{
-				thermophoreticEffectList[i] = true;
-				count++;
+				physicalSootDiffusivityReferenceIndex = i;
+				break;
 			}
 		}
-			
-		if (count == 0)
-			std::cout << "Warning: No " << tag << " species were found in the kinetic scheme! Are you sure you want to account for the thermophoretic effect?" << std::endl;
+		if (physicalSootDiffusivityReferenceIndex == -1)
+		{
+			Info << "Species BIN1A is not included in the kinetic mechanism" << endl;
+			abort();
+		}
 		else
-			std::cout << "Thermophoretic effect: Number of " << tag << " species found equal to " << count << std::endl;
+		{
+			int count = -1;
+			for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+			{
+				if (thermodynamicsMapXML->NamesOfSpecies()[i].compare(0,3,"BIN") == 0)
+				{
+					count++;
+					double MWratio = std::min(	thermodynamicsMapXML->MW()[i+1]/thermodynamicsMapXML->MW()[physicalSootDiffusivityReferenceIndex+1], 
+									std::pow(2., double(physicalSootDiffusivityIndex)) );
+					physicalSootDiffusivityCorrection.push_back( std::pow(MWratio, physicalSootDiffusivityExponent) );
+					physicalSootDiffusivityCorrectionIndex.push_back(i);
+			
+					Info << "Physical diffusion coefficient: " << thermodynamicsMapXML->NamesOfSpecies()[i] << " : " << physicalSootDiffusivityCorrection[count] << endl;
+				}
+			}
+		}
 	}
 } 
 

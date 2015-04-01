@@ -3,7 +3,10 @@ class PolimiSootAnalyzer
 {
 public:
 	
-	PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>* thermodynamicsMapXML);
+	PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>* thermodynamicsMapXML,
+					const std::string bin_minimum, 	const int bin_index_zero, 	const int bin_index_final, 
+									const double bin_density_A, 	const double bin_density_B,
+									const double Df);
 	void Analysis(const double T, const double P_Pa, const double rhoGas, const Eigen::VectorXd &omegaGas, const Eigen::VectorXd &xGas);
 	void Distribution();
 	void WriteBinData();
@@ -32,11 +35,11 @@ private:
 
 	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermo_;
 
-	std::string minimum_bin_;
+	std::string bin_minimum_;
 	unsigned int bin_index_zero_;
 	unsigned int bin_index_final_;
-	double bin_density_A_;
-	double bin_density_B_;
+	double bin_density_zero_;
+	double bin_density_final_;
 	double Df_;
 
 	unsigned int iC_;
@@ -121,16 +124,26 @@ private:
 	double dstd_N_;
 };
 
-PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>* thermodynamicsMapXML) : 
-		thermo_(*thermodynamicsMapXML)
+PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>* thermodynamicsMapXML,
+					const std::string bin_minimum, 	const int bin_index_zero, 	const int bin_index_final, 
+									const double bin_density_zero, 	const double bin_density_final,
+									const double Df) : 
+		thermo_(*thermodynamicsMapXML),
+		bin_minimum_(bin_minimum),
+		bin_index_zero_(bin_index_zero),
+		bin_index_final_(bin_index_final),
+		bin_density_zero_(bin_density_zero),
+		bin_density_final_(bin_density_final),
+		Df_(Df)
 	{
 
-		minimum_bin_     = "BIN5";
-		bin_index_zero_  = 10;
-		bin_index_final_ = 20;
-		bin_density_A_   = 1500.;
-		bin_density_B_   = 1700.;
-		Df_ = 1.8;
+	//	Default values
+	//	bin_minimum_     = "BIN5";
+	//	bin_index_zero_  = 10;
+	//	bin_index_final_ = 20;
+	//	bin_density_zero_   = 1500.;
+	//	bin_density_final_   = 1700.;
+	//	Df_ = 1.8;
 
 		iC_ = thermo_.IndexOfElement("C")-1;
 		iH_ = thermo_.IndexOfElement("H")-1;
@@ -140,7 +153,7 @@ PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 
 		double min_mw_soot = 1.e32;
 		for(int i=0;i<nspecies_;i++)
-			if (thermo_.NamesOfSpecies()[i].compare(0, minimum_bin_.size(), minimum_bin_) == 0)
+			if (thermo_.NamesOfSpecies()[i].compare(0, bin_minimum_.size(), bin_minimum_) == 0)
 			{
 				if (thermo_.MW()[i+1] < min_mw_soot)	min_mw_soot = thermo_.MW()[i+1];
 			}
@@ -165,12 +178,12 @@ PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 					
 					if (index<=bin_index_zero_) 
 					{
-						bin_density_.push_back(bin_density_A_);
+						bin_density_.push_back(bin_density_zero_);
 					}
 					else
 					{
-						const double m = (bin_density_B_-bin_density_A_)/(bin_index_final_-bin_index_zero_);
-						const double c = bin_density_A_-m*bin_index_zero_;
+						const double m = (bin_density_final_-bin_density_zero_)/(bin_index_final_-bin_index_zero_);
+						const double c = bin_density_zero_-m*bin_index_zero_;
 						bin_density_.push_back(c+m*index);
 					}
 				}

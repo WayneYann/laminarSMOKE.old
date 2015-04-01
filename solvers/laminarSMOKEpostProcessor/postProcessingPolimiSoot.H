@@ -210,6 +210,33 @@ if (iPolimiSoot == true)
 		dimensionSet(0, 0, 0, 0, 0)
 	);
 
+        volScalarField soot_omega_precursors
+	(
+		IOobject
+		(
+			"soot::omega_precursors",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::NO_WRITE
+		),
+		mesh,
+		dimensionSet(0, 0, 0, 0, 0)
+	);
+        volScalarField soot_x_precursors
+	(
+		IOobject
+		(
+			"soot::x_precursors",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::NO_WRITE
+		),
+		mesh,
+		dimensionSet(0, 0, 0, 0, 0)
+	);
+
 	Info << "Post processing soot..." << endl;
 
 	label ns = Y.size();
@@ -238,6 +265,8 @@ if (iPolimiSoot == true)
 	scalarField& soot_o_over_c_smallCells = soot_o_over_c_small.internalField();
 	scalarField& soot_o_over_h_largeCells = soot_o_over_h_large.internalField();
 	scalarField& soot_o_over_h_smallCells = soot_o_over_h_small.internalField();
+	scalarField& soot_omega_precursorsCells = soot_omega_precursors.internalField();
+	scalarField& soot_x_precursorsCells = soot_x_precursors.internalField();
 
 
 	forAll(TCells, celli)
@@ -283,6 +312,16 @@ if (iPolimiSoot == true)
 		soot_o_over_c_smallCells[celli] = sootAnalyzer->o_over_c_small();
 		soot_o_over_h_largeCells[celli] = sootAnalyzer->o_over_h_large();
 		soot_o_over_h_smallCells[celli] = sootAnalyzer->o_over_h_small();
+
+		soot_omega_precursorsCells[celli] = 0.;
+		soot_x_precursorsCells[celli] = 0.;
+		for(unsigned int k=0;k<soot_precursors_indices.size();k++)
+		{
+			int index = soot_precursors_indices[k];
+			soot_omega_precursorsCells[celli] += y_eigen(index);
+			soot_x_precursorsCells[celli] += x_eigen(index);
+		}
+			
 	}
 
 	forAll(T.boundaryField(), patchi)
@@ -306,6 +345,8 @@ if (iPolimiSoot == true)
 		fvPatchScalarField& psoot_o_over_c_small = soot_o_over_c_small.boundaryField()[patchi];
 		fvPatchScalarField& psoot_o_over_h_large = soot_o_over_h_large.boundaryField()[patchi];
 		fvPatchScalarField& psoot_o_over_h_small = soot_o_over_h_small.boundaryField()[patchi];
+		fvPatchScalarField& psoot_x_precursors = soot_x_precursors.boundaryField()[patchi];
+		fvPatchScalarField& psoot_omega_precursors = soot_omega_precursors.boundaryField()[patchi];
 
 
 		forAll(pT, facei)
@@ -351,6 +392,16 @@ if (iPolimiSoot == true)
 			psoot_o_over_h_large[facei] = sootAnalyzer->o_over_h_large();
 			psoot_o_over_h_small[facei] = sootAnalyzer->o_over_h_small();
 
+			// Soot precursors
+        		psoot_omega_precursors[facei] = 0.;
+			psoot_x_precursors[facei] = 0.;
+			for(unsigned int k=0;k<soot_precursors_indices.size();k++)
+			{
+				int index = soot_precursors_indices[k];
+				psoot_omega_precursors[facei] += y_eigen(index);
+				psoot_x_precursors[facei] += x_eigen(index);
+			}
+
 		}
 	}
 
@@ -370,7 +421,8 @@ if (iPolimiSoot == true)
 	soot_o_over_c_small.write();
 	soot_o_over_h_large.write();
 	soot_o_over_h_small.write();	
-
+	soot_omega_precursors.write();
+	soot_x_precursors.write();
 
 	// Distribution along a boundary
 	for (int i=0;i<polimiSootBoundaries.size();i++)
