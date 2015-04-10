@@ -109,6 +109,9 @@ Notes
 #include "timeSelector.H"
 #include "IOsampledSets.H"
 #include "IOsampledSurfaces.H"
+#include "fvCFD.H"
+#include "multivariateScheme.H"
+
 
 // Soot
 #include "PolimiSootAnalyzer.H"
@@ -251,6 +254,14 @@ int main(int argc, char *argv[])
 
 		#include "readBasicFields.H"
 		#include "readSpecies.H"
+		#include "calculateDensity.H"
+		#include "compressibleCreatePhi.H"
+		#include "calculateEnthalpy.H"
+		#include "calculateElementsMassFractions.H"
+
+		#include "calculateMassFlowRates.H"
+		#include "calculateEnthalpyRates.H"
+		#include "calculateElementsRates.H"
 
 		#include "postProcessingPolimiSoot.H"
 		#include "postProcessingMoleFractions.H"

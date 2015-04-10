@@ -5,6 +5,7 @@ label propertiesUpdate = 1;
 Switch implicitSourceTerm = true;
 Switch sparseJacobian  = true;
 species_order_policy_enum species_order_policy = SPECIES_ORDER_POLICY_CONSTANT;
+std::vector<std::string> exceptional_species;
 
 const dictionary& steadyStateDictionary = solverOptions.subDict("SteadyState");
 {
@@ -24,6 +25,21 @@ const dictionary& steadyStateDictionary = solverOptions.subDict("SteadyState");
 	{
 		Info << "Wrong orderPolicy option: constant | sweep | random | rotate" << endl;
 		abort();
+	}
+
+	// Exceptional species
+	exceptional_species.resize(thermodynamicsMapXML->NumberOfSpecies());
+	for(unsigned int k=0;k<thermodynamicsMapXML->NumberOfSpecies();k++)
+		exceptional_species[k] = "Yi";
+	
+	List<word> list_exceptional_species = List<word>(steadyStateDictionary.lookup("exceptionalSpecies"));
+	if (list_exceptional_species[0] != "none")
+	{
+		for(unsigned int k=0;k<list_exceptional_species.size();k++)
+		{
+			const int index = thermodynamicsMapXML->IndexOfSpecies(list_exceptional_species[k])-1;
+			exceptional_species[index] = "Yi_" + list_exceptional_species[k];
+		}
 	}
 }
 

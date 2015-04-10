@@ -256,5 +256,4 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 	#endif
 }
 
-
 #include "createFluxes.H"

@@ -13,7 +13,7 @@
 		{
 			fvScalarMatrix TEqn
 			(
-				cp*fvm::div(phi, T)		    
+				cp*fvm::div(phi, T) - cp*fvm::Sp(fvc::div(phi), T)	    
 				 ==
 		    		fvm::laplacian(lambda,T) + 
 		   	 	massDiffusionInEnergyEquation +
@@ -30,7 +30,7 @@
 		{
 			fvScalarMatrix TEqn
 			(
-				cp*fvm::div(phi, T)		    
+				cp*fvm::div(phi, T) - cp*fvm::Sp(fvc::div(phi), T)		    
 				 ==
 		    		fvm::laplacian(lambda,T) + 
 		   	 	massDiffusionInEnergyEquation - 

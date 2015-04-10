@@ -55,7 +55,7 @@ if(speciesEquations == true)
 		// Solve
 		YiEqn.relax();
 		fvOptions.constrain(YiEqn);
-		YiEqn.solve(mesh.solver("Yi"));
+		YiEqn.solve(mesh.solver(exceptional_species[i]));
 		fvOptions.correct(Yi);	
 			
 		// Sum of mass fractions

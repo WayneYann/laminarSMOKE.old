@@ -223,7 +223,7 @@ PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 					if (iCollisional == true)
 					{
 						bin_np_.push_back(bin_m_[bin_m_.size()-1] / bin_m_[BIN12_index]);
-						bin_dc_.push_back(std::sqrt(5. / 3.)*bin_ds_[BIN12_index] * pow(bin_np_[bin_np_.size()-1] / std::pow(1. + 2. / Df_, Df_ / 2.), 1. / Df_));
+						bin_dc_.push_back(std::sqrt(5. / 3.)*bin_ds_[BIN12_index] * std::pow(bin_np_[bin_np_.size()-1] / std::pow(1. + 2. / Df_, Df_ / 2.), 1. / Df_));
 						bin_d_.push_back(bin_dc_[bin_dc_.size()-1]);
 					}
 					else
@@ -317,9 +317,9 @@ PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 					bin_baskets_V_[k]  /= double(bin_baskets_indices_[k].size());
 					bin_baskets_m_[k]  /= double(bin_baskets_indices_[k].size());
 				
-					bin_baskets_log10d_[k] = log10(bin_baskets_d_[k]);
-					bin_baskets_log10V_[k] = log10(bin_baskets_V_[k]);
-					bin_baskets_log10m_[k] = log10(bin_baskets_m_[k]);
+					bin_baskets_log10d_[k] = std::log10(bin_baskets_d_[k]);
+					bin_baskets_log10V_[k] = std::log10(bin_baskets_V_[k]);
+					bin_baskets_log10m_[k] = std::log10(bin_baskets_m_[k]);
 				}
 
 				// Intervals
