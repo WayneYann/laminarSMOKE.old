@@ -5,15 +5,15 @@
 		if (iMassDiffusionInEnergyEquation == true)
 		{
 			for (label i=0; i<Y.size(); i++)
-				massDiffusionInEnergyEquation -= fvc::div(J[i],HSpecies[i], "div(Ji,hsi)") - 
-								 HSpecies[i] * fvc::div(J[i]);
+			       massDiffusionInEnergyEquation -= CpSpecies[i]*( fvc::reconstruct(J[i]) & fvc::grad(T));
 		}
 
 		if (radiativeHeatTransfer.radiationModel() == RADIATION_NONE)
 		{
 			fvScalarMatrix TEqn
 			(
-				cp*fvm::div(phi, T) - cp*fvm::Sp(fvc::div(phi), T)	    
+				cp*fvm::div(phi, T) 
+			   // - cp*fvm::Sp(fvc::div(phi), T)	    
 				 ==
 		    		fvm::laplacian(lambda,T) + 
 		   	 	massDiffusionInEnergyEquation +
@@ -30,7 +30,8 @@
 		{
 			fvScalarMatrix TEqn
 			(
-				cp*fvm::div(phi, T) - cp*fvm::Sp(fvc::div(phi), T)		    
+				cp*fvm::div(phi, T) 
+			   // - cp*fvm::Sp(fvc::div(phi), T)		    
 				 ==
 		    		fvm::laplacian(lambda,T) + 
 		   	 	massDiffusionInEnergyEquation - 

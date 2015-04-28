@@ -3,7 +3,7 @@
 
 	Info<< "Properties evaluation... " ;
 
-	OpenSMOKE::OpenSMOKEVectorDouble HVector(thermodynamicsMapXML->NumberOfSpecies());
+        OpenSMOKE::OpenSMOKEVectorDouble CpVector(thermodynamicsMapXML->NumberOfSpecies());
 	OpenSMOKE::OpenSMOKEVectorDouble Dmixvector(thermodynamicsMapXML->NumberOfSpecies());
 	OpenSMOKE::OpenSMOKEVectorDouble tetamixvector(thermodynamicsMapXML->NumberOfSpecies());
 
@@ -37,6 +37,9 @@
 				
 			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,MWmixCells[celli],massFractions);
 
+			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+				X[i].internalField()[celli] = moleFractions[i+1];
+
 			cTotCells[celli] = pCells[celli]/PhysicalConstants::R_J_kmol/TCells[celli];
 			psiCells[celli]  = cTotCells[celli]*MWmixCells[celli]/pCells[celli];
 			thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(hCells[celli], moleFractions);		// [J/kmol]
@@ -56,9 +59,9 @@
 			
 				if (iMassDiffusionInEnergyEquation == true)
 				{
-					thermodynamicsMapXML->hMolar_Species(HVector);
+					thermodynamicsMapXML->cpMolar_Species(CpVector);
 					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-						HSpecies[i].internalField()[celli] = HVector[i+1] / thermodynamicsMapXML->MW()[i+1];
+                                               CpSpecies[i].internalField()[celli] = CpVector[i+1] / thermodynamicsMapXML->MW()[i+1];
 				}
 			}
 			
@@ -131,6 +134,9 @@
 
 			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,pMWmix[facei],massFractions);
 
+			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+				X[i].boundaryField()[patchi][facei] = moleFractions[i+1];
+
 			pcTot[facei] = pp[facei]/(PhysicalConstants::R_J_kmol*pT[facei]);
 			ppsi[facei]  = pcTot[facei]*pMWmix[facei]/pp[facei];
 			thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(ph[facei], moleFractions);		// [J/kmol]
@@ -151,9 +157,9 @@
 			
 				if (iMassDiffusionInEnergyEquation == true)
 				{
-					thermodynamicsMapXML->hMolar_Species(HVector);
-					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-						HSpecies[i].boundaryField()[patchi][facei] = HVector[i+1] / thermodynamicsMapXML->MW()[i+1];
+					thermodynamicsMapXML->cpMolar_Species(CpVector);
+                                        for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+                                                CpSpecies[i].boundaryField()[patchi][facei] = CpVector[i+1] / thermodynamicsMapXML->MW()[i+1];
 				}
 			} 
 			

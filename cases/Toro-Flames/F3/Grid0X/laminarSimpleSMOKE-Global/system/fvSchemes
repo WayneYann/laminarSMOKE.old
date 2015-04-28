@@ -33,7 +33,6 @@ divSchemes
     div(phi,T)      			Gauss upwind;
     div(phi,Yi)     			Gauss limitedLinear01 1;
     div(Jc,Yi)                          Gauss limitedLinear01 1;
-    div(Ji,hsi)                         Gauss upwind;
     div(phiU,p)                         Gauss upwind;
     div((gas::mu*dev2(grad(U).T()))) 	Gauss linear;
 

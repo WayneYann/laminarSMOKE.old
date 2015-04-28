@@ -23,25 +23,30 @@ Kinetics
 
 SteadyState
 {
-	implicitSourceTerm 	true;
 	sparseJacobian		true;
-	jacobianUpdate		5;
+	jacobianUpdate		10;
 	propertiesUpdate	10;
+	implicitSourceTerm 	true;
+	orderSpecies		"sweep";
+	exceptionalSpecies	(none );
 }
 
 PhysicalModel
 {
 	strangAlgorithm 		"MomentumTransportReaction";
 	homogeneousReactions 		on;
+	momentumEquations		on;
+	speciesEquations		on;
 	energyEquation			on;
 	constPressureBatchReactor 	true;
 
 	massDiffusionInEnergyEquation	on;
 	diffusivityModel		"multi-component";
+
 	soretEffect			on;
+	thermophoreticEffect		off;
 
 	includeDpDt			on;
-
 	thermodynamicPressure		101325.;
 }
 
@@ -57,9 +62,9 @@ Output
 	diffusivities		off;
 }
 
-ThermophoreticEffect
+PolimiSoot
 {
-	thermophoreticEffect 	off;
+	physicalSootDiffusivity off;
 	thermophoreticEffectTag "BIN";
 }
 

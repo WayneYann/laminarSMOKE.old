@@ -53,6 +53,7 @@ solvers
         smoother        symGaussSeidel;
         tolerance       1e-09;
         relTol          1e-06;
+	minIter		1;
     }
 }
 
@@ -64,11 +65,11 @@ SIMPLE
 
     residualControl
     {
-	default         1e-6;
+	default         1e-7;
 
-        p               1e-6;
-        U               1e-6;
-        T               1e-6;
+        p               1e-7;
+        U               1e-7;
+        T               1e-7;
     }
 }
 

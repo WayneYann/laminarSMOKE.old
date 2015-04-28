@@ -117,16 +117,30 @@ int main(int argc, char *argv[])
 
 		runTime++;
 		Info<< "Time = " << runTime.timeName() << nl << endl;
-		
-		if (strangAlgorithm == STRANG_MOMENTUM_TRANSPORT_REACTION)
-		{
-			#include "Policy_MomentumTransportReaction.H"
+
+		if (momentumEquations == false)
+		{		
+			if (strangAlgorithm == STRANG_MOMENTUM_TRANSPORT_REACTION)
+			{
+				#include "Policy_TransportReaction.H"
+			}
+			else if (strangAlgorithm == STRANG_MOMENTUM_REACTION_TRANSPORT)
+			{
+				#include "Policy_ReactionTransport.H"
+			}
 		}
-		else if (strangAlgorithm == STRANG_MOMENTUM_REACTION_TRANSPORT)
+		else
 		{
-			#include "Policy_MomentumReactionTransport.H"
-		}		
-				
+			if (strangAlgorithm == STRANG_MOMENTUM_TRANSPORT_REACTION)
+			{
+				#include "Policy_MomentumTransportReaction.H"
+			}
+			else if (strangAlgorithm == STRANG_MOMENTUM_REACTION_TRANSPORT)
+			{
+				#include "Policy_MomentumReactionTransport.H"
+			}		
+		}
+	
 		runTime.write();
 		
 

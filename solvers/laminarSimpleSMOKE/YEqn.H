@@ -1,5 +1,3 @@
-
-
 // Discretization schemes
 tmp<fv::convectionScheme<scalar> > mvConvection
 (
@@ -26,16 +24,31 @@ if(speciesEquations == true)
         {
            	volScalarField& Yi = Y[i];
 	    	volScalarField& Dmixi = Dmix[i];
+		dimensionedScalar Mi( "Mi", dimensionSet(1,0,0,0,-1,0,0),thermodynamicsMapXML->MW()[i+1] ); 
 
-		// Basic equations
+		// Corrections
+		{
+			sumDiffusionCorrections *= 0.;
+			for (label k=0; k<Y.size(); k++)
+			{
+				volScalarField& Yk = Y[k];	
+				dimensionedScalar Mk( "Mk", dimensionSet(1,0,0,0,-1,0,0), thermodynamicsMapXML->MW()[k+1] );
+
+				if (i!=k)
+				sumDiffusionCorrections += fvc::laplacian(rho*MWmix/Mk*Dmixi*Yi, Yk);
+			}
+		}
+
 		fvScalarMatrix YiEqn
 		(
-		     mvConvection->fvmDiv(phi, Yi)
-		   - fvm::laplacian(rho*Dmixi, Yi)
-		     ==
-                   - fvm::div(Jc,Yi, "div(Jc,Yi)") + 
-		     sourceExplicit[i] + fvm::Sp(sourceImplicit[i],Yi) +						
-		     fvOptions(rho, Yi)
+		    	mvConvection->fvmDiv(phi, Yi)
+		      - fvm::laplacian(rho*Dmixi, Yi) 
+                        == 
+	              - fvm::laplacian(rho*Dmixi*MWmix*Yi/Mi, Yi)
+		      - sumDiffusionCorrections + 
+                      - fvm::div(Jc,Yi, "div(Jc,Yi)") + 
+		        sourceExplicit[i] + fvm::Sp(sourceImplicit[i],Yi) +						
+		     	fvOptions(rho, Yi)
 		);
 
 		// Add Soret effect
@@ -74,12 +87,6 @@ if(speciesEquations == true)
     	std::random_shuffle ( species_order.begin(), species_order.end() );
     else if (species_order_policy == SPECIES_ORDER_POLICY_ROTATE)
 	std::rotate(species_order.begin(),species_order.begin()+1,species_order.end());
-
-//    for (label i=0; i<Y.size(); i++)
-//    {
-//	volScalarField& Yi = Y[i];
-//	Yi /= Yt;
- //   }
 
     double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 	

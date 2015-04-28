@@ -25,16 +25,31 @@ tmp<fv::convectionScheme<scalar> > mvConvection
         {
            	volScalarField& Yi = Y[i];
 	    	volScalarField& Dmixi = Dmix[i];
+		dimensionedScalar Mi( "Mi", dimensionSet(1,0,0,0,-1,0,0),thermodynamicsMapXML->MW()[i+1] ); 
 
-		// Basic equations
+		// Corrections
+		{
+			sumDiffusionCorrections *= 0.;
+			for (label k=0; k<Y.size(); k++)
+			{
+				volScalarField& Yk = Y[k];	
+				dimensionedScalar Mk( "Mk", dimensionSet(1,0,0,0,-1,0,0), thermodynamicsMapXML->MW()[k+1] );
+
+				if (i!=k)
+				sumDiffusionCorrections += fvc::laplacian(rho*MWmix/Mk*Dmixi*Yi, Yk);
+			}
+		}
+
 		fvScalarMatrix YiEqn
 		(
-		     fvm::ddt(rho, Yi)
-		   + mvConvection->fvmDiv(phi, Yi)
-		   - fvm::laplacian(rho*Dmixi, Yi)
-		     ==
-                   - fvm::div(Jc,Yi, "div(Jc,Yi)") + 						
-		     fvOptions(rho, Yi)
+		        fvm::ddt(rho, Yi)
+		      + mvConvection->fvmDiv(phi, Yi)
+		      - fvm::laplacian(rho*Dmixi, Yi)
+		        == 
+	              - fvm::laplacian(rho*Dmixi*MWmix*Yi/Mi, Yi)
+		      - sumDiffusionCorrections + 
+                      - fvm::div(Jc,Yi, "div(Jc,Yi)") + 
+		     	fvOptions(rho, Yi)
 		);
 
 		// Add Soret effect

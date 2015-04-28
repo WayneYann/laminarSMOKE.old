@@ -242,6 +242,22 @@ volScalarField h
     dimensionSet(0, 2, -2, 0, 0)
 );
 
+Info<< "Creating sumDiffusionCorrections\n" << endl;
+volScalarField sumDiffusionCorrections
+(
+    IOobject
+    (
+        "gas::sumCorrections",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("zero", dimensionSet(1, -3, -1, 0, 0), 0.)
+);
+
+
 Info<< "Creating massDiffusionInEnergyEquation\n" << endl;
 volScalarField massDiffusionInEnergyEquation
 (

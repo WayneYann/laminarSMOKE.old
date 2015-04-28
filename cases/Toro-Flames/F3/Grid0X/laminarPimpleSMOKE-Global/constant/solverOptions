@@ -25,15 +25,18 @@ PhysicalModel
 {
 	strangAlgorithm 		"MomentumTransportReaction";
 	homogeneousReactions 		on;
+	momentumEquations		on;
+	speciesEquations		on;
 	energyEquation			on;
 	constPressureBatchReactor 	true;
 
 	massDiffusionInEnergyEquation	on;
 	diffusivityModel		"multi-component";
+	
+	thermophoreticEffect		off;
 	soretEffect			on;
 
 	includeDpDt			on;
-
 	thermodynamicPressure		101325.;
 }
 
@@ -49,10 +52,10 @@ Output
 	diffusivities		off;
 }
 
-ThermophoreticEffect
+PolimiSoot
 {
-	thermophoreticEffect 	off;
 	thermophoreticEffectTag "BIN";
+	physicalSootDiffusivity	off;
 }
 
 OdeHomogeneous
