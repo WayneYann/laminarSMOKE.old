@@ -57,6 +57,7 @@ Description
 #include "utilities.H"
 
 // Homogeneous reactors
+#include "DRG.h"
 #include "BatchReactorHomogeneousConstantPressure.H"
 #include "BatchReactorHomogeneousConstantPressure_ODE_Interface.H"
 #include "BatchReactorHomogeneousConstantVolume.H"
@@ -68,6 +69,8 @@ Description
     #include "mappingGradient.h"
     #include "numericalJacobian4ISAT.H"
 #endif
+
+
 
 template<typename Solver, typename OdeBatch>
 void SolveOpenSourceSolvers(OdeBatch& ode, const double t0, const double tf, const OpenSMOKE::OpenSMOKEVectorDouble& y0, OpenSMOKE::OpenSMOKEVectorDouble& yf, const OpenSMOKE::ODE_Parameters& parameters)

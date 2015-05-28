@@ -141,8 +141,8 @@ const dictionary& sparkDictionary = solverOptions.subDict("Spark");
 sparkModel spark;
 spark.Read(sparkDictionary);
 
-Eigen::VectorXd outputFormationRatesIndices;
-Eigen::VectorXd outputDiffusivitiesIndices;
+Eigen::VectorXi outputFormationRatesIndices;
+Eigen::VectorXi outputDiffusivitiesIndices;
 const dictionary& outputDictionary = solverOptions.subDict("Output"); 
 {
 	{
@@ -186,6 +186,33 @@ const dictionary& radiativeHeatTransferDictionary = solverOptions.subDict("Radia
 	{
 		radiativeHeatTransfer.SetThermodynamics(*thermodynamicsMapXML);
 		radiativeHeatTransfer.SetEnvironmentTemperature( readScalar(radiativeHeatTransferDictionary.lookup("environmentTemperature")) );
+	}
+}
+
+OpenSMOKE::DRG* drg;
+Switch drg_analysis = false;
+double drg_minimum_temperature_for_chemistry = 300.;
+List<double>  drg_epsilon;
+List<double>  drg_temperature;
+const dictionary& drgDictionary = solverOptions.subDict("DRG");
+{
+	drg_analysis = Switch(drgDictionary.lookup(word("drg")));
+	
+	if ( drg_analysis == true)
+	{
+		drg_minimum_temperature_for_chemistry  = readScalar(drgDictionary.lookup("minTemperature"));
+
+		std::vector<unsigned int> drgListSpecies;
+		List<word>  listSpecies(drgDictionary.lookup("species"));
+		drgListSpecies.resize(listSpecies.size());
+		for (int i=0;i<drgListSpecies.size();i++)
+			drgListSpecies[i] = thermodynamicsMapXML->IndexOfSpecies(listSpecies[i])-1;
+
+		drg_epsilon = readList<double>(drgDictionary.lookup("epsilon"));
+		drg_temperature = readList<double>(drgDictionary.lookup("temperature"));
+
+		drg = new OpenSMOKE::DRG(thermodynamicsMapXML, kineticsMapXML);
+		drg->SetKeySpecies(drgListSpecies);
 	}
 }
 
