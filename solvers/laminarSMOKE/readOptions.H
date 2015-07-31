@@ -60,6 +60,7 @@ Switch momentumEquations;
 Switch homogeneousReactions;
 Switch iMassDiffusionInEnergyEquation;
 Switch constPressureBatchReactor;
+Switch sparseJacobianConstantVolume;
 Switch includeDpDt;
 Switch soretEffect;
 Switch thermophoreticEffect;
@@ -131,6 +132,9 @@ const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel
 	
 	//- Constant pressure reactors
 	constPressureBatchReactor = Switch(physicalModelDictionary.lookup(word("constPressureBatchReactor")));
+
+	//- Constant pressure reactors
+	sparseJacobianConstantVolume = Switch(physicalModelDictionary.lookup(word("sparseJacobian")));
 
 	// Themodynamic pressure [Pa]
 	thermodynamicPressure = readScalar(physicalModelDictionary.lookup("thermodynamicPressure"));

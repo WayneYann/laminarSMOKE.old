@@ -62,6 +62,8 @@ Description
 #include "BatchReactorHomogeneousConstantPressure_ODE_Interface.H"
 #include "BatchReactorHomogeneousConstantVolume.H"
 #include "BatchReactorHomogeneousConstantVolume_ODE_Interface.H"
+#include "BatchReactorHomogeneousConstantVolumeSparse.H"
+#include "BatchReactorHomogeneousConstantVolumeSparse_ODE_Interface.H"
 
 // ISAT
 #if OPENSMOKE_USE_ISAT == 1

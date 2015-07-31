@@ -39,6 +39,7 @@ Description
 #include "maps/Maps_CHEMKIN"
 
 // Reactor utilities
+#include "DRG.h"
 #include "reactors/utilities/Utilities"
 
 // OpenFOAM

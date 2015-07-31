@@ -9,8 +9,9 @@ OpenSMOKE::OpenSMOKEVectorDouble omega(thermodynamicsMapXML->NumberOfSpecies());
 #if STEADYSTATE != 1
 
 // Batch reactor homogeneous
-BatchReactorHomogeneousConstantPressure batchReactorHomogeneousConstantPressure(*thermodynamicsMapXML, *kineticsMapXML);
-BatchReactorHomogeneousConstantVolume   batchReactorHomogeneousConstantVolume(*thermodynamicsMapXML, *kineticsMapXML);
+BatchReactorHomogeneousConstantPressure       batchReactorHomogeneousConstantPressure(*thermodynamicsMapXML, *kineticsMapXML);
+BatchReactorHomogeneousConstantVolume         batchReactorHomogeneousConstantVolume(*thermodynamicsMapXML, *kineticsMapXML);
+BatchReactorHomogeneousConstantVolumeSparse   batchReactorHomogeneousConstantVolumeSparse(*thermodynamicsMapXML, *kineticsMapXML);
 
 // ODE Solver (constant pressure)
 typedef OdeSMOKE::KernelDense<OpenSMOKE::BatchReactorHomogeneousConstantPressure_ODE_OpenSMOKE> denseOdeConstantPressure;
@@ -23,6 +24,34 @@ typedef OdeSMOKE::KernelDense<OpenSMOKE::BatchReactorHomogeneousConstantVolume_O
 typedef OdeSMOKE::MethodGear<denseOdeConstantVolume> methodGearConstantVolume;
 OdeSMOKE::MultiValueSolver<methodGearConstantVolume> odeSolverConstantVolume;	
 odeSolverConstantVolume.SetReactor(&batchReactorHomogeneousConstantVolume);
+
+// ODE Solver (constant volume and sparse formulation)
+typedef OdeSMOKE::KernelSparse<OpenSMOKE::BatchReactorHomogeneousConstantVolumeSparse_ODE_OpenSMOKE> sparseOdeConstantVolume;
+typedef OdeSMOKE::MethodGear<sparseOdeConstantVolume> methodGearConstantVolumeSparse;
+OdeSMOKE::MultiValueSolver<methodGearConstantVolumeSparse> odeSolverConstantVolumeSparse;	
+{
+	std::vector<unsigned int> row;
+	std::vector<unsigned int> col;
+	kineticsMapXML->jacobian_sparsity_pattern_map()->RecognizeJacobianSparsityPattern(row, col);
+	batchReactorHomogeneousConstantVolumeSparse.Jomega() = *kineticsMapXML->jacobian_sparsity_pattern_map()->jacobian_matrix();
+	for (unsigned int i = 0; i <= thermodynamicsMapXML->NumberOfSpecies(); i++)
+	{
+		row.push_back(thermodynamicsMapXML->NumberOfSpecies());
+		col.push_back(i);
+
+		row.push_back(i);
+		col.push_back(thermodynamicsMapXML->NumberOfSpecies());
+	}
+
+	odeSolverConstantVolumeSparse.SetReactor(&batchReactorHomogeneousConstantVolumeSparse);
+	odeSolverConstantVolumeSparse.SetSparsityPattern(row, col);
+
+	odeSolverConstantVolumeSparse.SetLinearAlgebraSolver("Pardiso");
+	odeSolverConstantVolumeSparse.SetPreconditioner("ILUT");
+	odeSolverConstantVolumeSparse.SetUserDefinedJacobian();
+	//odeSolverConstantVolumeSparse.SetPreconditionerDropTolerance(...);
+	//odeSolverConstantVolumeSparse.SetPreconditionerFillFactor(...);
+}
 
 #if OPENSMOKE_USE_DVODE == 1
 OpenSMOKE::BatchReactorHomogeneousConstantPressure_ODE_DVODE *dvodeSolverConstantPressure;

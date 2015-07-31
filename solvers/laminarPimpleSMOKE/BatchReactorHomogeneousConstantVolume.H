@@ -125,9 +125,9 @@ int BatchReactorHomogeneousConstantVolume::Equations(const double t, const OpenS
 		const double sumMoleFormationRates = R_.SumElements();
 		
 		dy[NC_+1]  = (QR_ + PhysicalConstants::R_J_kmol*T_*sumMoleFormationRates) / (rho0_*CvMixMass_);
-	}
-	
-	return 0;
+     }
+     
+     return 0;
 }
 
 int BatchReactorHomogeneousConstantVolume::Print(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y)
