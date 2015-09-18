@@ -9,7 +9,7 @@ public:
 		duration_ = 0.;
 		ignitionTemperature_ = 0.;
 		ignitionDiameter_ = 0.;
-		nIgnCells_ = 1;
+		nIgnCells_ = 0;
 	}
 	
 	bool spark() const { return spark_; }

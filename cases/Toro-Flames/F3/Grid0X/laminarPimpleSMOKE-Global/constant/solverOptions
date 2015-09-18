@@ -29,7 +29,8 @@ PhysicalModel
 	speciesEquations		on;
 	energyEquation			on;
 	constPressureBatchReactor 	true;
-
+	sparseJacobian			false;
+	
 	massDiffusionInEnergyEquation	on;
 	diffusivityModel		"multi-component";
 	
@@ -75,6 +76,11 @@ Spark
 	temperature 	2205;
 	duration 	0.025;
 	diameter 	1.5e-3;
+}
+
+DRG
+{
+	drg	off;
 }
 
 #include "isatOptions"
