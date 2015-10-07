@@ -15,9 +15,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-method          simple;
+method scotch;
 
-numberOfSubdomains 4;
+numberOfSubdomains 2;
 
 simpleCoeffs
 {

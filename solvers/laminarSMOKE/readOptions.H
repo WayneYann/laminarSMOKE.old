@@ -307,6 +307,9 @@ std::ofstream* fSootIntegrals;
 			}
 		*/
 			
+			label sootUpdate     	 = readLabel(postProcessingPolimiSootDictionary.lookup("onTheFlyUpdateFrequency"));
+			sootCounter = sootUpdate;
+
 			Foam::string minimum_bin = postProcessingPolimiSootDictionary.lookup("binMinimum");
 			label bin_index_zero     = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexZero"));
 			label bin_index_final    = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexFinal"));
@@ -319,6 +322,19 @@ std::ofstream* fSootIntegrals;
 			
 			fSootIntegrals = new std::ofstream("soot.integrals", std::ios::out);
 			fSootIntegrals->setf(std::ios::scientific);
+
+			*fSootIntegrals << std::setw(20) << "time";
+			*fSootIntegrals << std::setw(20) << "soot_mass[kg]";
+			*fSootIntegrals << std::setw(20) << "soot_volume[m3]";
+			*fSootIntegrals << std::setw(20) << "soot_particles[#]";		
+			*fSootIntegrals << std::setw(20) << "prec_mass[kg]";
+			*fSootIntegrals << std::setw(20) << "prec_volume[m3]";
+			*fSootIntegrals << std::setw(20) << "prec_partciles[#]";
+			*fSootIntegrals << std::setw(20) << "dimer_mass[kg]";		
+			*fSootIntegrals << std::setw(20) << "pah12_340nm[kg]";
+			*fSootIntegrals << std::setw(20) << "pah34_400nm[kg]";
+			*fSootIntegrals << std::setw(20) << "pahlarge_500nm[kg]";
+			*fSootIntegrals << std::endl;
 		}
 }
 
@@ -436,7 +452,7 @@ OpenSMOKE::ODE_Parameters odeParameterBatchReactorHomogeneous;
 #endif
 #endif
 
-label minMaxUpdate  = 25;
-label minMaxCounter = minMaxUpdate;
+//label minMaxUpdate  = 25;
+//label minMaxCounter = minMaxUpdate;
 
 Info<< "Solver options correctly read\n" << endl;

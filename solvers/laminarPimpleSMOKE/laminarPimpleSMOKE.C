@@ -69,6 +69,10 @@ Description
     #include "numericalJacobian4ISAT.H"
 #endif
 
+// Soot
+#include "sootUtilities.H"
+#include "PolimiSootAnalyzer.H"
+
 template<typename Solver, typename OdeBatch>
 void SolveOpenSourceSolvers(OdeBatch& ode, const double t0, const double tf, const OpenSMOKE::OpenSMOKEVectorDouble& y0, OpenSMOKE::OpenSMOKEVectorDouble& yf, const OpenSMOKE::ODE_Parameters& parameters)
 {
@@ -142,8 +146,9 @@ int main(int argc, char *argv[])
 		}
 	
 		runTime.write();
-		
 
+		#include "localPostProcessing.H"
+		
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"
              << nl << endl;

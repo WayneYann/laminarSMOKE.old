@@ -1,3 +1,4 @@
+/*
 {
 	if (minMaxCounter == minMaxUpdate)
 	{
@@ -12,6 +13,7 @@
 
 	minMaxCounter++;
 }
+*/
 
 if (iPolimiSoot == true)
 {
@@ -28,6 +30,7 @@ if (iPolimiSoot == true)
 		const double pah_3_4_rings_mass = pah_3_4_rings_Mass(sootAnalyzer, rho, Y);
 		const double pah_more_than_4_rings_mass = pah_more_than_4_rings_Mass(sootAnalyzer, rho, Y);
 		
+		*fSootIntegrals << std::setw(20) << runTime.value();
 		*fSootIntegrals << std::setw(20) << large_bin_mass;
 		*fSootIntegrals << std::setw(20) << large_bin_volume;
 		*fSootIntegrals << std::setw(20) << large_bin_particles;		
