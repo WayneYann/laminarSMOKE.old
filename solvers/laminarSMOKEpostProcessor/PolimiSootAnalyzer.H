@@ -1,3 +1,5 @@
+#ifndef PolimiSootAnalyzer_H
+#define	PolimiSootAnalyzer_H
 
 class PolimiSootAnalyzer
 {
@@ -31,6 +33,20 @@ void WriteDistributionLabel(std::ofstream &fSoot);
 	double o_over_c_large() const { return o_over_c_large_;}
 	double o_over_h_large() const { return o_over_h_large_;}
 
+	const std::vector<unsigned int>& bin_indices_large_global() const { return bin_indices_large_global_; }
+	const std::vector<unsigned int>& bin_indices_small_global() const { return bin_indices_small_global_; }
+
+	const std::vector<unsigned int>& soot_dimer_indices_global() const { return soot_dimer_indices_global_;   }
+	const std::vector<unsigned int>& pah_1_2_rings_indices_global() const { return pah_1_2_rings_indices_global_;   }
+	const std::vector<unsigned int>& pah_3_4_rings_indices_global() const { return pah_3_4_rings_indices_global_;   }
+	const std::vector<unsigned int>& pah_more_than_4_rings_indices_global() const { return pah_1_2_rings_indices_global_; }
+
+	const std::vector<double>& bin_density_large() const { return bin_density_large_; }
+	const std::vector<double>& bin_V_large() const { return bin_V_large_; }
+	const std::vector<double>& bin_density_small() const { return bin_density_small_; }
+	const std::vector<double>& bin_V_small() const { return bin_V_small_; }
+
+
 private:
 
 	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermo_;
@@ -48,20 +64,30 @@ private:
 	unsigned nspecies_;
 
 	std::vector<double> bin_density_;
+	std::vector<double> bin_density_large_;
+	std::vector<double> bin_density_small_;
+
 	std::vector<unsigned int> bin_indices_;
 	std::vector<std::string> bin_names_;
 	std::vector<double> bin_mw_;
 	std::vector<double> bin_m_;
 	std::vector<double> bin_ds_;
+
 	std::vector<double> bin_V_;
+	std::vector<double> bin_V_large_;
+	std::vector<double> bin_V_small_;
+
 	std::vector<double> bin_c_;
 	std::vector<double> bin_h_;
 	std::vector<double> bin_o_;
 	std::vector<double> bin_h_over_c_;
 	std::vector<double> bin_o_over_c_;
 	std::vector<double> bin_o_over_h_;
-	std::vector<double> bin_indices_large_;
-	std::vector<double> bin_indices_small_;
+	std::vector<unsigned int> bin_indices_large_;
+	std::vector<unsigned int> bin_indices_small_;
+	std::vector<unsigned int> bin_indices_large_global_;
+	std::vector<unsigned int> bin_indices_small_global_;
+
 	std::vector<double> bin_np_;
 	std::vector<double> bin_dc_;
 	std::vector<double> bin_d_;
@@ -99,6 +125,12 @@ private:
 	std::vector<double> bin_baskets_rho_;
 	std::vector<double> bin_baskets_x_;
 	std::vector<double> bin_baskets_omega_;
+
+	std::vector<unsigned int> soot_dimer_indices_global_;
+	std::vector<unsigned int> pah_1_2_rings_indices_global_;
+	std::vector<unsigned int> pah_3_4_rings_indices_global_;
+	std::vector<unsigned int> pah_more_than_4_rings_indices_global_;
+
 
 	double fv_small_;
 	double rho_small_;
@@ -169,9 +201,6 @@ PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 
 				// BIN density
 				{
-					
-					
-
 					const double index = std::log(nc/24.)/std::log(2.) + 1.;
 
 					std::cout << thermo_.NamesOfSpecies()[i] << " " << nc << " " << nh << " " << no << std::endl;
@@ -209,8 +238,22 @@ PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 				if (nh>0)	bin_o_over_h_.push_back(no/nh);	// Ratio O/H
 				else    	bin_o_over_h_.push_back(0.);	// Ratio O/H
 				
-				if ( thermo_.MW()[i+1] >=  min_mw_soot)	bin_indices_large_.push_back(bin_indices_.size()-1);
-				else                            	bin_indices_small_.push_back(bin_indices_.size()-1);
+				if ( thermo_.MW()[i+1] >=  min_mw_soot)	
+				{
+					unsigned int index = bin_indices_.size()-1;
+					bin_indices_large_.push_back(index);
+					bin_indices_large_global_.push_back(i);
+					bin_density_large_.push_back(bin_density_[index]);
+					bin_V_large_.push_back(bin_V_[index]);
+				}
+				else
+				{
+					unsigned int index = bin_indices_.size()-1;
+					bin_indices_small_.push_back(index);
+					bin_indices_small_global_.push_back(i);
+					bin_density_small_.push_back(bin_density_[index]);
+					bin_V_small_.push_back(bin_V_[index]);
+				}
 
 				// Collisional diameter and diameter
 				{
@@ -339,6 +382,68 @@ PolimiSootAnalyzer::PolimiSootAnalyzer(OpenSMOKE::ThermodynamicsMap_CHEMKIN<doub
 				bin_baskets_dlog10V_[k] = ((bin_baskets_log10V_[k]+bin_baskets_log10V_[k-1])/2. - bin_baskets_log10V_[k-1])*2.;
 				bin_baskets_dlog10m_[k] = ((bin_baskets_log10m_[k]+bin_baskets_log10m_[k-1])/2. - bin_baskets_log10m_[k-1])*2.;
 		}
+
+		// Soot dimer
+		for(int i=0;i<nspecies_;i++)
+			if (thermo_.NamesOfSpecies()[i].compare(0, bin_minimum_.size(), bin_minimum_) == 0)
+				soot_dimer_indices_global_.push_back(i);
+			
+		// PAH (340 nm, 1/2 aromatic rings)
+		pah_1_2_rings_indices_global_.resize(0);
+		if ( thermo_.IndexOfSpeciesWithoutError("C6H6") > 0 )		pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C6H6")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C7H8") > 0 )		pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C7H8")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("INDENE") > 0 )		pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("INDENE")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C10H8") > 0 )		pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C10H8")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C12H8") > 0 )		pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C12H8")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("BIPHENYL") > 0 )	pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("BIPHENYL")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("FLUORENE") > 0 )	pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("FLUORENE")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C6H5C2H") > 0 )	pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C6H5C2H")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C6H5C2H3") > 0 )	pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C6H5C2H3")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C6H5C2H5") > 0 )	pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C6H5C2H5")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C6H5CH2C6H5") > 0 )	pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C6H5CH2C6H5")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C10H7CH3") > 0 )	pah_1_2_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C10H7CH3")-1 );
+
+		// PAH (340 nm, 3/4 aromatic rings)
+		pah_3_4_rings_indices_global_.resize(0);
+		if ( thermo_.IndexOfSpeciesWithoutError("C14H10") > 0 )		pah_3_4_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C14H10")-1 );
+		if ( thermo_.IndexOfSpeciesWithoutError("C16H10") > 0 )		pah_3_4_rings_indices_global_.push_back( thermo_.IndexOfSpeciesWithoutError("C16H10")-1 );
+
+		// PAH (340 nm, more than 4 aromatic rings)
+		// Actually, they are equivalent to small BINs
+		pah_more_than_4_rings_indices_global_.resize(0);
+		pah_more_than_4_rings_indices_global_ = bin_indices_small_global_;	
+
+		// Summary PAH data
+		std::cout << "PAHs with 1/2 rings (340 nm)" << std::endl;
+		std::cout << "------------------------------------------------" << std::endl;
+		for(unsigned int i=0;i<pah_1_2_rings_indices_global_.size();i++)
+			std::cout << thermo_.NamesOfSpecies()[pah_1_2_rings_indices_global_[i]] << " " << pah_1_2_rings_indices_global_[i] << std::endl;	
+		std::cout << std::endl;
+
+		std::cout << "PAHs with 3/4 rings (400 nm)" << std::endl;
+		std::cout << "------------------------------------------------" << std::endl;
+		for(unsigned int i=0;i<pah_3_4_rings_indices_global_.size();i++)
+			std::cout << thermo_.NamesOfSpecies()[pah_3_4_rings_indices_global_[i]] << " " << pah_3_4_rings_indices_global_[i] << std::endl;	
+		std::cout << std::endl;
+
+		std::cout << "PAHs with more than 4 rings (500 nm)" << std::endl;
+		std::cout << "------------------------------------------------" << std::endl;
+		for(unsigned int i=0;i<pah_more_than_4_rings_indices_global_.size();i++)
+			std::cout << thermo_.NamesOfSpecies()[pah_more_than_4_rings_indices_global_[i]] << " " << pah_more_than_4_rings_indices_global_[i] << std::endl;	
+		std::cout << std::endl;
+
+		std::cout << "Soot dimers" << std::endl;
+		std::cout << "------------------------------------------------" << std::endl;
+		for(unsigned int i=0;i<soot_dimer_indices_global_.size();i++)
+			std::cout << thermo_.NamesOfSpecies()[soot_dimer_indices_global_[i]] << " " << soot_dimer_indices_global_[i] << std::endl;	
+		std::cout << std::endl;
+
+		std::cout << "Soot particles" << std::endl;
+		std::cout << "------------------------------------------------" << std::endl;
+		for(unsigned int i=0;i<bin_indices_large_global_.size();i++)
+			std::cout << thermo_.NamesOfSpecies()[bin_indices_large_global_[i]] << " " << bin_indices_large_global_[i] << std::endl;	
+		std::cout << std::endl;
+
 	}
 
 void PolimiSootAnalyzer::Analysis(const double T, const double P_Pa, const double rhoGas, const Eigen::VectorXd &omegaGas, const Eigen::VectorXd &xGas)
@@ -625,3 +730,5 @@ void PolimiSootAnalyzer::WriteBinData()
 
 	fOutput.close();
 }
+
+#endif // PolimiSootAnalyzer_H

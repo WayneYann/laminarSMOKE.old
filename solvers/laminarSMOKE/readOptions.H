@@ -269,6 +269,59 @@ std::vector<int> physicalSootDiffusivityCorrectionIndex;
 	}
 } 
 
+// Soot post-processing
+PolimiSootAnalyzer* sootAnalyzer;
+Switch iPolimiSoot = false;
+label sootUpdate  = 1;
+label sootCounter = sootUpdate;
+std::ofstream* fSootIntegrals;
+{	
+		const dictionary& postProcessingDictionary = solverOptions.subDict("PostProcessing");		
+		iPolimiSoot = Switch(postProcessingDictionary.lookup(word("soot")));
+
+		if (iPolimiSoot == true)
+		{
+			const dictionary& postProcessingPolimiSootDictionary = postProcessingDictionary.subDict("PolimiSoot");
+		/*	List<word> list_soot_precursors = List<word>(postProcessingPolimiSootDictionary.lookup("sootPrecursors"));
+
+			for(unsigned int k=0;k<list_soot_precursors.size();k++)
+			{
+				bool found = false;
+				for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+				{
+					if (list_soot_precursors[k] == thermodynamicsMapXML->NamesOfSpecies()[i])
+					{
+						soot_precursors_indices.push_back(i);
+						found = true;
+					}	
+				}
+				if (found == false)
+				{
+					Info << "The following soot precursor is not included in the kinetic mechanism: " << list_soot_precursors[k] << endl;
+					abort();
+				}
+				else
+				{
+					Info << "Soot precursor " << k+1 << " " << list_soot_precursors[k] << " : index " << soot_precursors_indices[k] << endl;
+				}
+			}
+		*/
+			
+			Foam::string minimum_bin = postProcessingPolimiSootDictionary.lookup("binMinimum");
+			label bin_index_zero     = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexZero"));
+			label bin_index_final    = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexFinal"));
+			scalar bin_density_zero  = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityZero"));
+			scalar bin_density_final = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityFinal"));
+			scalar fractal_diameter = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
+
+			sootAnalyzer = new PolimiSootAnalyzer(thermodynamicsMapXML, minimum_bin, bin_index_zero, bin_index_final, bin_density_zero, bin_density_final, fractal_diameter);
+
+			
+			fSootIntegrals = new std::ofstream("soot.integrals", std::ios::out);
+			fSootIntegrals->setf(std::ios::scientific);
+		}
+}
+
 /*********************************************************************************************************************/ 
 
 #if STEADYSTATE != 1

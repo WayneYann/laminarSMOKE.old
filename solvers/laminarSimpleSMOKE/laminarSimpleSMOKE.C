@@ -55,6 +55,10 @@ Description
 // Linearization
 #include "linearModel.H"
 
+// Soot
+#include "sootUtilities.H"
+#include "PolimiSootAnalyzer.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])

@@ -1,0 +1,115 @@
+#include "PolimiSootAnalyzer.H"
+
+// Returns the integral mass of soot particles (large BINS) [kg] 
+double largeBinMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_large_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_large_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]).value();
+	}
+	return sum;
+}
+
+// Returns the integral volume of soot particles (large BINs) [m3] 
+double largeBinVolume(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_large_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_large_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]/soot_analyzer->bin_density_large()[i]).value();
+	}
+	return sum;
+}
+
+// Returns the integral number of soot particles (large BINs) [#] 
+double largeBinNumberParticles(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_large_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_large_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]/soot_analyzer->bin_density_large()[i]/soot_analyzer->bin_V_large()[i]).value();
+	}
+	return sum;
+}
+
+// Returns the integral mass of soot particles (small BINS) [kg] 
+double smallBinMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_small_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_small_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]).value();
+	}
+	return sum;
+}
+
+// Returns the integral volume of soot particles (small BINs) [m3] 
+double smallBinVolume(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_small_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_small_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]/soot_analyzer->bin_density_small()[i]).value();
+	}
+	return sum;
+}
+
+// Returns the integral number of soot particles (small BINs) [#] 
+double smallBinNumberParticles(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_small_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_small_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]/soot_analyzer->bin_density_large()[i]/soot_analyzer->bin_V_small()[i]).value();
+	}
+	return sum;
+}
+
+// Returns the integral mass of dimer particles [kg] 
+double sootDimerMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->soot_dimer_indices_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->soot_dimer_indices_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]).value();
+	}
+	return sum;
+}
+
+// Returns the integral mass of PAHs with 1 or 2 aromatic rings (340 nm) [kg] 
+double pah_1_2_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->pah_1_2_rings_indices_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->pah_1_2_rings_indices_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]).value();
+	}
+	return sum;
+}
+
+// Returns the integral mass of PAHs with 3 or 4 aromatic rings (400 nm) [kg] 
+double pah_3_4_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->pah_3_4_rings_indices_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->pah_3_4_rings_indices_global()[i];
+		sum += fvc::domainIntegrate(rho*Y[j]).value();
+	}
+	return sum;
+}
+
+// Returns the integral mass of PAHs with more than 4 rings (500 nm) [kg] 
+double pah_more_than_4_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+{
+	return smallBinMass(soot_analyzer, rho, Y);
+}
