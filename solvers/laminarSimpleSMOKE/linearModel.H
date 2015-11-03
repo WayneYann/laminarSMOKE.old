@@ -17,7 +17,7 @@ public:
 		ChangeDimensions(NE_, &y_plus_, true);
 		ChangeDimensions(NE_, &dy_plus_, true);
 		ChangeDimensions(NE_, &dy_original_, true);
-		Jdiagonal_.resize(NC_);
+		Jdiagonal_.resize(NE_);
 	}
 
 	void reactionSourceTerms(	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>& thermodynamicsMap_, OpenSMOKE::KineticsMap_CHEMKIN<double>& kineticsMap_,

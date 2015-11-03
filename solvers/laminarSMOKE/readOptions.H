@@ -307,7 +307,7 @@ std::ofstream* fSootIntegrals;
 			}
 		*/
 			
-			label sootUpdate     	 = readLabel(postProcessingPolimiSootDictionary.lookup("onTheFlyUpdateFrequency"));
+			sootUpdate     	 = readLabel(postProcessingPolimiSootDictionary.lookup("onTheFlyUpdateFrequency"));
 			sootCounter = sootUpdate;
 
 			Foam::string minimum_bin = postProcessingPolimiSootDictionary.lookup("binMinimum");
