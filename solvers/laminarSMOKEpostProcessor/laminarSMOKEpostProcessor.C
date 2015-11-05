@@ -267,6 +267,8 @@ int main(int argc, char *argv[])
 		#include "postProcessingMoleFractions.H"
 		#include "postProcessingConcentrations.H"
 
+		#include "calculateEquivalenceRatio.H"
+
 	//	#include "properties.H"
 	//	#include "fluxes.H"
 	// 	#include "postProcessingMixtureFraction.H"

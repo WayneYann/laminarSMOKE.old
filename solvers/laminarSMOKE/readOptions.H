@@ -57,6 +57,7 @@ enum { DIFFUSIVITY_MODEL_MULTICOMPONENT, DIFFUSIVITY_MODEL_LEWIS_NUMBERS} diffus
 Switch energyEquation;
 Switch speciesEquations;
 Switch momentumEquations;
+Switch zMixEquation;
 Switch homogeneousReactions;
 Switch iMassDiffusionInEnergyEquation;
 Switch constPressureBatchReactor;
@@ -67,12 +68,14 @@ Eigen::VectorXd LewisNumbers;
 std::vector<bool> soretEffectList;
 std::vector<int> indexSoret;
 scalar thermodynamicPressure = 101325.;
+label zMixDmixIndex = inertIndex;
 
 const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel");
 {
 	momentumEquations = Switch(physicalModelDictionary.lookup(word("momentumEquations")));
 	energyEquation = Switch(physicalModelDictionary.lookup(word("energyEquation")));
 	speciesEquations = Switch(physicalModelDictionary.lookup(word("speciesEquations")));
+	zMixEquation = Switch(physicalModelDictionary.lookup(word("zMixEquation")));
 	homogeneousReactions = Switch(physicalModelDictionary.lookup(word("homogeneousReactions")));
 	includeDpDt = Switch(physicalModelDictionary.lookup(word("includeDpDt")));
 	iMassDiffusionInEnergyEquation = Switch(physicalModelDictionary.lookup(word("massDiffusionInEnergyEquation")));
@@ -134,6 +137,13 @@ const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel
 
 	// Themodynamic pressure [Pa]
 	thermodynamicPressure = readScalar(physicalModelDictionary.lookup("thermodynamicPressure"));
+
+	//- Inert species
+	if (zMixEquation == true)
+	{
+		word referenceSpecies(physicalModelDictionary.lookup("zMixDmixSpecies"));
+		zMixDmixIndex = thermodynamicsMapXML->IndexOfSpecies(referenceSpecies)-1;
+	}
 }
 
 //- Detect spark

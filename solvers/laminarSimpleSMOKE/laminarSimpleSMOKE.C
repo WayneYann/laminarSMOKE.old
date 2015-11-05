@@ -108,6 +108,9 @@ int main(int argc, char *argv[])
             #include "YEqn.H"
 	    #include "TEqn.H" 
             #include "pEqn.H"
+
+	    // Passive scalars
+            #include "zMixEqn.H"
          }	
 				
 	 runTime.write();

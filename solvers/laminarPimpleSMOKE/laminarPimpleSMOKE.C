@@ -144,6 +144,9 @@ int main(int argc, char *argv[])
 				#include "Policy_MomentumReactionTransport.H"
 			}		
 		}
+
+		// Passive scalars
+            	#include "zMixEqn.H"
 	
 		runTime.write();
 

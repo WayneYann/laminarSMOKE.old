@@ -273,3 +273,17 @@ volScalarField massDiffusionInEnergyEquation
     dimensionSet(1, -1, -3, 0, 0)
 );
 massDiffusionInEnergyEquation = dimensionedScalar("zero", dimensionSet(1, -1, -3, 0, 0), 0.);
+
+Info<< "Reading zMix field\n" << endl;
+volScalarField zMix
+(
+    IOobject
+    (
+        "zMix",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
