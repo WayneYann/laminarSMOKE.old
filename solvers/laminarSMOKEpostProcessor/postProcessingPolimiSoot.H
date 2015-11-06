@@ -470,7 +470,7 @@ if (iPolimiSoot == true)
 			// Soot analysis
 			sootAnalyzer->Analysis(pT[facei], pp[facei], rhoGas, y_eigen, x_eigen);	
 			sootAnalyzer->Distribution();
-			sootAnalyzer->WriteDistribution(fOutput, face_x);
+			sootAnalyzer->WriteDistribution(fOutput, face_x, pT[facei]);
 		}
 		
 		fOutput.close();

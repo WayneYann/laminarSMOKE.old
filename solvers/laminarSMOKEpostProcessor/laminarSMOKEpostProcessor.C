@@ -114,7 +114,7 @@ Notes
 
 
 // Soot
-#include "PolimiSootAnalyzer.H"
+#include "soot/OpenSMOKE_PolimiSoot_Analyzer.h"
 
 using namespace Foam;
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 	OpenSMOKE::ThermodynamicsMap_CHEMKIN<double>* thermodynamicsMapXML; 
 	OpenSMOKE::KineticsMap_CHEMKIN<double>* kineticsMapXML;
 	OpenSMOKE::TransportPropertiesMap_CHEMKIN<double>* transportMapXML;
-	PolimiSootAnalyzer* sootAnalyzer;
+	OpenSMOKE::PolimiSoot_Analyzer* sootAnalyzer;
 
 	{	
 		const dictionary& kineticsDictionary = solverOptionsDictionary.subDict("Kinetics");
@@ -233,12 +233,14 @@ int main(int argc, char *argv[])
 			scalar bin_density_final = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityFinal"));
 			scalar fractal_diameter = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
 
-			sootAnalyzer = new PolimiSootAnalyzer(thermodynamicsMapXML, minimum_bin, bin_index_zero, bin_index_final, bin_density_zero, bin_density_final, fractal_diameter);
+			sootAnalyzer = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
+			sootAnalyzer->SetFractalDiameter(fractal_diameter);
+			sootAnalyzer->SetMinimumSection(minimum_bin);
+			sootAnalyzer->SetDensity(bin_index_zero, bin_index_final, bin_density_zero, bin_density_final);
+			sootAnalyzer->Setup();
 		}
 	}
 
-
-	
 	if (iPolimiSoot == true)
 	{
 		

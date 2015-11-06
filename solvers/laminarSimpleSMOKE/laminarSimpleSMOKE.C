@@ -37,6 +37,7 @@ Description
 
 // CHEMKIN maps
 #include "maps/Maps_CHEMKIN"
+#include "soot/OpenSMOKE_PolimiSoot_Analyzer.h"
 
 // Reactor utilities
 #include "reactors/utilities/Utilities"
@@ -57,7 +58,6 @@ Description
 
 // Soot
 #include "sootUtilities.H"
-#include "PolimiSootAnalyzer.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -99,23 +99,35 @@ int main(int argc, char *argv[])
 
 	 // Pressure-velocity SIMPLE corrector
          {
-            #include "UEqn.H"
+		if (momentumEquations == true)
+		{
+		    #include "UEqn.H"
 
-	    #include "updateProperties.H"
-	    #include "jacobianEvaluation.H"
+		    #include "updateProperties.H"
+		    #include "jacobianEvaluation.H"
 
-	    #include "fluxes.H"
-            #include "YEqn.H"
-	    #include "TEqn.H" 
-            #include "pEqn.H"
+		    #include "fluxes.H"
+		    #include "YEqn.H"
+		    #include "TEqn.H" 
+		    #include "pEqn.H"
+		}
+		else
+		{
+		    #include "updateProperties.H"
+		    #include "jacobianEvaluation.H"
 
-	    // Passive scalars
-            #include "zMixEqn.H"
+		    #include "fluxes.H"
+		    #include "YEqn.H"
+		    #include "TEqn.H" 
+		}
+	    
+		// Passive scalars
+	        #include "zMixEqn.H"
          }	
-				
-	 runTime.write();
 
 	 #include "localPostProcessing.H"
+				
+	 runTime.write();
 		
          Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
               << "  ClockTime = " << runTime.elapsedClockTime() << " s"

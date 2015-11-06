@@ -1,7 +1,7 @@
-#include "PolimiSootAnalyzer.H"
+#include "soot/OpenSMOKE_PolimiSoot_Analyzer.h"
 
 // Returns the integral mass of soot particles (large BINS) [kg] 
-double largeBinMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double largeBinMass(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->bin_indices_large_global().size();i++)
@@ -13,7 +13,7 @@ double largeBinMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrL
 }
 
 // Returns the integral volume of soot particles (large BINs) [m3] 
-double largeBinVolume(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double largeBinVolume(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->bin_indices_large_global().size();i++)
@@ -25,7 +25,7 @@ double largeBinVolume(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, Pt
 }
 
 // Returns the integral number of soot particles (large BINs) [#] 
-double largeBinNumberParticles(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double largeBinNumberParticles(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->bin_indices_large_global().size();i++)
@@ -37,7 +37,7 @@ double largeBinNumberParticles(PolimiSootAnalyzer* soot_analyzer, volScalarField
 }
 
 // Returns the integral mass of soot particles (small BINS) [kg] 
-double smallBinMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double smallBinMass(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->bin_indices_small_global().size();i++)
@@ -49,7 +49,7 @@ double smallBinMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrL
 }
 
 // Returns the integral volume of soot particles (small BINs) [m3] 
-double smallBinVolume(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double smallBinVolume(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->bin_indices_small_global().size();i++)
@@ -61,7 +61,7 @@ double smallBinVolume(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, Pt
 }
 
 // Returns the integral number of soot particles (small BINs) [#] 
-double smallBinNumberParticles(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double smallBinNumberParticles(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->bin_indices_small_global().size();i++)
@@ -73,7 +73,7 @@ double smallBinNumberParticles(PolimiSootAnalyzer* soot_analyzer, volScalarField
 }
 
 // Returns the integral mass of dimer particles [kg] 
-double sootDimerMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double sootDimerMass(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->soot_dimer_indices_global().size();i++)
@@ -85,7 +85,7 @@ double sootDimerMass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, Ptr
 }
 
 // Returns the integral mass of PAHs with 1 or 2 aromatic rings (340 nm) [kg] 
-double pah_1_2_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double pah_1_2_rings_Mass(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->pah_1_2_rings_indices_global().size();i++)
@@ -97,7 +97,7 @@ double pah_1_2_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho
 }
 
 // Returns the integral mass of PAHs with 3 or 4 aromatic rings (400 nm) [kg] 
-double pah_3_4_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double pah_3_4_rings_Mass(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	double sum = 0.;
 	for(int i=0;i<soot_analyzer->pah_3_4_rings_indices_global().size();i++)
@@ -109,7 +109,7 @@ double pah_3_4_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho
 }
 
 // Returns the integral mass of PAHs with more than 4 rings (500 nm) [kg] 
-double pah_more_than_4_rings_Mass(PolimiSootAnalyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
+double pah_more_than_4_rings_Mass(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, volScalarField& rho, PtrList<volScalarField>& Y)
 {
 	return smallBinMass(soot_analyzer, rho, Y);
 }

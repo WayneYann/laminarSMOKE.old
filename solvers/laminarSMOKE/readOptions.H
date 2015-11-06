@@ -280,10 +280,11 @@ std::vector<int> physicalSootDiffusivityCorrectionIndex;
 } 
 
 // Soot post-processing
-PolimiSootAnalyzer* sootAnalyzer;
+OpenSMOKE::PolimiSoot_Analyzer* sootAnalyzer;
 Switch iPolimiSoot = false;
-label sootUpdate  = 1;
-label sootCounter = sootUpdate;
+label sootIntegralUpdate  = 1;
+label sootIntegralCounter = sootIntegralUpdate;
+Switch sootOnTheFlyFill = false;
 std::ofstream* fSootIntegrals;
 {	
 		const dictionary& postProcessingDictionary = solverOptions.subDict("PostProcessing");		
@@ -317,8 +318,9 @@ std::ofstream* fSootIntegrals;
 			}
 		*/
 			
-			sootUpdate     	 = readLabel(postProcessingPolimiSootDictionary.lookup("onTheFlyUpdateFrequency"));
-			sootCounter = sootUpdate;
+			sootOnTheFlyFill    = Switch(postProcessingPolimiSootDictionary.lookup(word("onTheFlyFill")));
+			sootIntegralUpdate  = readLabel(postProcessingPolimiSootDictionary.lookup("integralUpdate"));
+			sootIntegralCounter = sootIntegralUpdate;
 
 			Foam::string minimum_bin = postProcessingPolimiSootDictionary.lookup("binMinimum");
 			label bin_index_zero     = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexZero"));
@@ -327,24 +329,36 @@ std::ofstream* fSootIntegrals;
 			scalar bin_density_final = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityFinal"));
 			scalar fractal_diameter = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
 
-			sootAnalyzer = new PolimiSootAnalyzer(thermodynamicsMapXML, minimum_bin, bin_index_zero, bin_index_final, bin_density_zero, bin_density_final, fractal_diameter);
+			sootAnalyzer = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
+			sootAnalyzer->SetFractalDiameter(fractal_diameter);
+			sootAnalyzer->SetMinimumSection(minimum_bin);
+			sootAnalyzer->SetDensity(bin_index_zero, bin_index_final, bin_density_zero, bin_density_final);
+			sootAnalyzer->Setup();
 
-			
-			fSootIntegrals = new std::ofstream("soot.integrals", std::ios::out);
-			fSootIntegrals->setf(std::ios::scientific);
+			if ( !boost::filesystem::exists("soot.integrals") )
+			{
+  				fSootIntegrals = new std::ofstream("soot.integrals", std::ios::out);
+				fSootIntegrals->setf(std::ios::scientific);
 
-			*fSootIntegrals << std::setw(20) << "time";
-			*fSootIntegrals << std::setw(20) << "soot_mass[kg]";
-			*fSootIntegrals << std::setw(20) << "soot_volume[m3]";
-			*fSootIntegrals << std::setw(20) << "soot_particles[#]";		
-			*fSootIntegrals << std::setw(20) << "prec_mass[kg]";
-			*fSootIntegrals << std::setw(20) << "prec_volume[m3]";
-			*fSootIntegrals << std::setw(20) << "prec_partciles[#]";
-			*fSootIntegrals << std::setw(20) << "dimer_mass[kg]";		
-			*fSootIntegrals << std::setw(20) << "pah12_340nm[kg]";
-			*fSootIntegrals << std::setw(20) << "pah34_400nm[kg]";
-			*fSootIntegrals << std::setw(20) << "pahlarge_500nm[kg]";
-			*fSootIntegrals << std::endl;
+				*fSootIntegrals << std::setw(20) << "time";
+				*fSootIntegrals << std::setw(20) << "soot_mass[kg]";
+				*fSootIntegrals << std::setw(20) << "soot_volume[m3]";
+				*fSootIntegrals << std::setw(20) << "soot_particles[#]";		
+				*fSootIntegrals << std::setw(20) << "prec_mass[kg]";
+				*fSootIntegrals << std::setw(20) << "prec_volume[m3]";
+				*fSootIntegrals << std::setw(20) << "prec_partciles[#]";
+				*fSootIntegrals << std::setw(20) << "dimer_mass[kg]";		
+				*fSootIntegrals << std::setw(20) << "pah12_340nm[kg]";
+				*fSootIntegrals << std::setw(20) << "pah34_400nm[kg]";
+				*fSootIntegrals << std::setw(20) << "pahlarge_500nm[kg]";
+				*fSootIntegrals << std::endl;
+			}
+			else
+			{
+				fSootIntegrals = new std::ofstream();
+				fSootIntegrals->open("soot.integrals", std::ios::app);
+				fSootIntegrals->setf(std::ios::scientific);
+			}
 		}
 }
 

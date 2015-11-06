@@ -275,4 +275,242 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 	#endif
 }
 
+PtrList<volScalarField> sootFields(13);
+if (sootOnTheFlyFill == true)
+{
+	sootFields.set
+	(
+		0,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::fv_large",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		1,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::fv_small",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		2,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::rho_large",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		3,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::rho_small",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		4,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::N_large",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, -3, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		5,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::N_small",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, -3, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		6,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::x_large",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		7,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::x_small",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		8,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::omega_large",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		9,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::omega_small",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		10,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::omega_1_2",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		11,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::omega_3_4",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+	sootFields.set
+	(
+		12,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::omega_more_4",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+}
+
 #include "createFluxes.H"

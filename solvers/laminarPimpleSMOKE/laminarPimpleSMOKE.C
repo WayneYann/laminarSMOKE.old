@@ -147,10 +147,12 @@ int main(int argc, char *argv[])
 
 		// Passive scalars
             	#include "zMixEqn.H"
+
+		// Local post processing
+		#include "localPostProcessing.H"
 	
 		runTime.write();
 
-		#include "localPostProcessing.H"
 		
         Info << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
              << "  ClockTime = " << runTime.elapsedClockTime() << " s"
