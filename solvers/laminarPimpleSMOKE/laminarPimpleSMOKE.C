@@ -37,6 +37,7 @@ Description
 
 // CHEMKIN maps
 #include "maps/Maps_CHEMKIN"
+#include "soot/OpenSMOKE_PolimiSoot_Analyzer.h"
 
 // Reactor utilities
 #include "reactors/utilities/Utilities"
@@ -71,7 +72,6 @@ Description
 
 // Soot
 #include "sootUtilities.H"
-#include "PolimiSootAnalyzer.H"
 
 template<typename Solver, typename OdeBatch>
 void SolveOpenSourceSolvers(OdeBatch& ode, const double t0, const double tf, const OpenSMOKE::OpenSMOKEVectorDouble& y0, OpenSMOKE::OpenSMOKEVectorDouble& yf, const OpenSMOKE::ODE_Parameters& parameters)
