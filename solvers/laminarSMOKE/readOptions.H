@@ -58,6 +58,7 @@ Switch energyEquation;
 Switch speciesEquations;
 Switch momentumEquations;
 Switch zMixEquation;
+Switch tauEquation;
 Switch homogeneousReactions;
 Switch iMassDiffusionInEnergyEquation;
 Switch constPressureBatchReactor;
@@ -75,7 +76,7 @@ const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel
 	momentumEquations = Switch(physicalModelDictionary.lookup(word("momentumEquations")));
 	energyEquation = Switch(physicalModelDictionary.lookup(word("energyEquation")));
 	speciesEquations = Switch(physicalModelDictionary.lookup(word("speciesEquations")));
-	zMixEquation = Switch(physicalModelDictionary.lookup(word("zMixEquation")));
+	tauEquation = Switch(physicalModelDictionary.lookup(word("tauEquation")));
 	homogeneousReactions = Switch(physicalModelDictionary.lookup(word("homogeneousReactions")));
 	includeDpDt = Switch(physicalModelDictionary.lookup(word("includeDpDt")));
 	iMassDiffusionInEnergyEquation = Switch(physicalModelDictionary.lookup(word("massDiffusionInEnergyEquation")));

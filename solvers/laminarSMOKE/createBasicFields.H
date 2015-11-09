@@ -288,3 +288,18 @@ volScalarField zMix
     mesh
 );
 
+Info<< "Reading tau (residence time) field\n" << endl;
+volScalarField tau
+(
+    IOobject
+    (
+        "tau",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("zero", dimensionSet(0, 0, -1, 0, 0), 0.)
+);
+

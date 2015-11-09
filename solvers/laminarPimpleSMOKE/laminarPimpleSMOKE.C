@@ -147,6 +147,7 @@ int main(int argc, char *argv[])
 
 		// Passive scalars
             	#include "zMixEqn.H"
+		#include "tauEqn.H"
 
 		// Local post processing
 		#include "localPostProcessing.H"
