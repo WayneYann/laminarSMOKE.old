@@ -328,12 +328,16 @@ std::ofstream* fSootIntegrals;
 			label bin_index_final    = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexFinal"));
 			scalar bin_density_zero  = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityZero"));
 			scalar bin_density_final = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityFinal"));
-			scalar fractal_diameter = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
+			scalar fractal_diameter  = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
+			Foam::string planck_coefficient = readLabel(postProcessingPolimiSootDictionary.lookup("planckCoefficient"));
+
+
 
 			sootAnalyzer = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
 			sootAnalyzer->SetFractalDiameter(fractal_diameter);
 			sootAnalyzer->SetMinimumSection(minimum_bin);
 			sootAnalyzer->SetDensity(bin_index_zero, bin_index_final, bin_density_zero, bin_density_final);
+			sootAnalyzer->SetPlanckAbsorptionCoefficient(planck_coefficient);
 			sootAnalyzer->Setup();
 
 			if ( !boost::filesystem::exists("soot.integrals") )

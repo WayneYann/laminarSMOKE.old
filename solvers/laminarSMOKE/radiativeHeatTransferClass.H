@@ -57,9 +57,9 @@ public:
 		return aPlanck(T, P_Pa, xCH4_, xH2O_, xCO2_, xCO_);
 	}
 	
-	double Q(const double T, const double a)
+	double Q(const double T, const double aGas, const double aSoot)
 	{
-		return 4.*sigmaSB_*a*(T*T*T*T - Tenv4_);
+		return 4.*sigmaSB_*(aGas+aSoot)*(T*T*T*T - Tenv4_);
 	}
 
 private:
