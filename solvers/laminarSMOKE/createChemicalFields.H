@@ -170,109 +170,109 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 			)
 		);
 	}
+}
 
-	if (outputFormationRatesIndices.size() != 0)
-	{
-		for (int i=0;i<outputFormationRatesIndices.size();i++)
-		{
-			FormationRates.set
-			(
-				i,
-				new volScalarField
-				(
-					IOobject
-					(
-						"R::" + thermodynamicsMapXML->NamesOfSpecies()[outputFormationRatesIndices(i)],
-						mesh.time().timeName(),
-						mesh,
-						IOobject::NO_READ,
-						IOobject::AUTO_WRITE
-					),
-					mesh,
-					dimensionedScalar("R", dimensionSet(1, -3, -1, 0, 0), 0.0)
-				)
-			);
-		}
-	}
+#if STEADYSTATE == 1
 
-	#if STEADYSTATE == 1
-
-	for (int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-	{
-		sourceImplicit.set
-		(
-			i,
-			new volScalarField
-			(
-				IOobject
-				(
-					"SI::" + thermodynamicsMapXML->NamesOfSpecies()[i],
-					mesh.time().timeName(),
-					mesh,
-					IOobject::NO_READ,
-					IOobject::NO_WRITE
-				),
-				mesh,
-				dimensionedScalar("SI", dimensionSet(1, -3, -1, 0, 0), 0.0)
-			)
-		);
-
-		sourceExplicit.set
-		(
-			i,
-			new volScalarField
-			(
-				IOobject
-				(
-					"SE::" + thermodynamicsMapXML->NamesOfSpecies()[i],
-					mesh.time().timeName(),
-					mesh,
-					IOobject::NO_READ,
-					IOobject::NO_WRITE
-				),
-				mesh,
-				dimensionedScalar("SE", dimensionSet(1, -3, -1, 0, 0), 0.0)
-			)
-		);
-	}
-
+for (int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+{
 	sourceImplicit.set
 	(
-		thermodynamicsMapXML->NumberOfSpecies(),
+		i,
 		new volScalarField
 		(
 			IOobject
 			(
-				"SI::T",
+				"SI::" + thermodynamicsMapXML->NamesOfSpecies()[i],
 				mesh.time().timeName(),
 				mesh,
 				IOobject::NO_READ,
 				IOobject::NO_WRITE
 			),
 			mesh,
-			dimensionedScalar("SIT", dimensionSet(1, -1, -3, -1, 0), 0.0)
+			dimensionedScalar("SI", dimensionSet(1, -3, -1, 0, 0), 0.0)
 		)
 	);
 
 	sourceExplicit.set
 	(
-		thermodynamicsMapXML->NumberOfSpecies(),
+		i,
 		new volScalarField
 		(
 			IOobject
 			(
-				"SE::T",
+				"SE::" + thermodynamicsMapXML->NamesOfSpecies()[i],
 				mesh.time().timeName(),
 				mesh,
 				IOobject::NO_READ,
 				IOobject::NO_WRITE
 			),
 			mesh,
-			dimensionedScalar("SET", dimensionSet(1, -1, -3, 0, 0), 0.0)
+			dimensionedScalar("SE", dimensionSet(1, -3, -1, 0, 0), 0.0)
 		)
 	);
+}
 
-	#endif
+sourceImplicit.set
+(
+	thermodynamicsMapXML->NumberOfSpecies(),
+	new volScalarField
+	(
+		IOobject
+		(
+			"SI::T",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::NO_WRITE
+		),
+		mesh,
+		dimensionedScalar("SIT", dimensionSet(1, -1, -3, -1, 0), 0.0)
+	)
+);
+
+sourceExplicit.set
+(
+	thermodynamicsMapXML->NumberOfSpecies(),
+	new volScalarField
+	(
+		IOobject
+		(
+			"SE::T",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::NO_WRITE
+		),
+		mesh,
+		dimensionedScalar("SET", dimensionSet(1, -1, -3, 0, 0), 0.0)
+	)
+);
+
+#endif
+
+if (outputFormationRatesIndices.size() != 0)
+{
+	for (int i=0;i<outputFormationRatesIndices.size();i++)
+	{
+		FormationRates.set
+		(
+			i,
+			new volScalarField
+			(
+				IOobject
+				(
+					"R::" + thermodynamicsMapXML->NamesOfSpecies()[outputFormationRatesIndices(i)],
+					mesh.time().timeName(),
+					mesh,
+					IOobject::NO_READ,
+					IOobject::AUTO_WRITE
+				),
+				mesh,
+				dimensionedScalar("R", dimensionSet(1, -3, -1, 0, 0), 0.0)
+			)
+		);
+	}
 }
 
 PtrList<volScalarField> sootFields(13);
@@ -514,3 +514,16 @@ if (sootOnTheFlyFill == true)
 }
 
 #include "createFluxes.H"
+
+// Create laminarSMOKEthermoClass object
+std::vector<double> W(thermodynamicsMapXML->NumberOfSpecies());
+std::vector<std::string> species_names(thermodynamicsMapXML->NumberOfSpecies());
+
+for (unsigned int i=0;i<species_names.size();i++)
+{
+	species_names[i] = thermodynamicsMapXML->NamesOfSpecies()[i];
+	W[i] = thermodynamicsMapXML->MW()[i+1];
+}
+
+autoPtr<Foam::laminarSMOKEthermoClass> myLaminarSMOKEthermo(Foam::laminarSMOKEthermoClass::New(T,p,Y, W, species_names));
+

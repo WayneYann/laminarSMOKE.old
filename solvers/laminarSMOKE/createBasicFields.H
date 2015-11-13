@@ -164,34 +164,19 @@ volScalarField Qrad
     dimensionedScalar("rad::Qrad", dimensionSet(1, -1, -3, 0, 0), 0.0)
 );
 
-//- Allocating memory for Planck mean absorption coefficient (gas) [1/m]
-volScalarField aPlanckGas
+//- Allocating memory for dummy field useful only to tune the radiative heat transfer model
+volScalarField dQ
 (
-    IOobject
-    (
-        "rad::aPlanckGas",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("rad::aPlanckGas", dimensionSet(0, 0, -1, 0, 0), 0.0)
-);
-
-//- Allocating memory for Planck mean absorption coefficient (soot) [1/m]
-volScalarField aPlanckSoot
-(
-    IOobject
-    (
-        "rad::aPlanckSoot",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("rad::aPlanckSoot", dimensionSet(0, 0, -1, 0, 0), 0.0)
+	IOobject
+	(
+	    "dQ",
+	    runTime.timeName(),
+	    mesh,
+	    IOobject::NO_READ,
+	    IOobject::AUTO_WRITE
+	),
+	mesh,
+	dimensionedScalar("dQ", dimEnergy/dimTime, 0.0)
 );
 
 //- Allocating memory for reaction heat [W/m3]

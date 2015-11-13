@@ -6,6 +6,7 @@ EXE_INC = \
     $(EXTERNAL_ODE_SOLVERS) \
     -I../laminarSMOKE \
     -I../laminarSMOKEpostProcessor \
+    -I../../libs/laminarSMOKEradiationModels/lnInclude \
     -I$(OPENSMOKE_LIBRARY_PATH) \
     -I$(BOOST_LIBRARY_PATH)/include \
     -I$(EIGEN_LIBRARY_PATH) \
@@ -27,6 +28,7 @@ EXE_LIBS = \
     -lfvOptions \
     -lmeshTools \
     -lsampling \
+    -llaminarSMOKEradiationModels \
     $(SUNDIALS_LIBS) \
     $(MEBDF_LIBS) \
     $(RADAU_LIBS) \

@@ -182,3 +182,88 @@ if (iPolimiSoot == true)
 
 	sootIntegralCounter++;
 }
+
+// Radiative loss
+{
+	if (runTime.outputTime() == true)
+	{
+		radiation->Qloss(T,Qrad);
+	}
+}
+
+// Formation rates
+{
+	if (runTime.outputTime() == true && outputFormationRatesIndices.size()>0)
+	{
+		OpenSMOKE::OpenSMOKEVectorDouble c(thermodynamicsMapXML->NumberOfSpecies());
+		OpenSMOKE::OpenSMOKEVectorDouble R(thermodynamicsMapXML->NumberOfSpecies());
+
+		const scalarField& TCells = T.internalField();
+		const scalarField& pCells = p.internalField(); 
+
+		forAll(TCells, celli)
+		{
+			// Mole fractions
+			thermodynamicsMapXML->SetPressure(pCells[celli]);
+			thermodynamicsMapXML->SetTemperature(TCells[celli]);
+			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+				massFractions[i+1] = Y[i].internalField()[celli];
+			double dummy;
+			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,dummy,massFractions);
+
+			// Concentrations
+			const double cTot = pCells[celli]/PhysicalConstants::R_J_kmol/TCells[celli];
+			Product(cTot, moleFractions, &c);
+
+			// Kinetics
+			kineticsMapXML->SetTemperature(TCells[celli]);
+			kineticsMapXML->SetPressure(pCells[celli]);
+			kineticsMapXML->KineticConstants();
+			kineticsMapXML->ReactionRates(c);
+			kineticsMapXML->FormationRates(&R);
+
+			for (int j=0;j<outputFormationRatesIndices.size();j++)
+			{
+				const int index = outputFormationRatesIndices(j)+1;
+				FormationRates[j].internalField()[celli] = thermodynamicsMapXML->MW()[index]*R[index];
+			}
+		}
+
+
+		// Boundaries
+		forAll(T.boundaryField(), patchi)
+		{
+			fvPatchScalarField& pp = p.boundaryField()[patchi];
+			fvPatchScalarField& pT = T.boundaryField()[patchi];
+        
+        
+			forAll(pT, facei)
+			{
+				// Mole fractions
+				thermodynamicsMapXML->SetPressure(pp[facei]);
+				thermodynamicsMapXML->SetTemperature(pT[facei]);	
+				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+					massFractions[i+1] = Y[i].boundaryField()[patchi][facei];
+				double dummy;
+				thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,dummy,massFractions);
+				
+				// Concentrations
+				const double cTot = pp[facei]/(PhysicalConstants::R_J_kmol*pT[facei]);
+				Product(cTot, moleFractions, &c);
+
+				// Kinetics
+				kineticsMapXML->SetTemperature(pT[facei]);
+				kineticsMapXML->SetPressure(pp[facei]);
+				kineticsMapXML->KineticConstants();
+				kineticsMapXML->ReactionRates(c);
+				kineticsMapXML->FormationRates(&R);
+
+				for (int j=0;j<outputFormationRatesIndices.size();j++)
+				{
+					const int index = outputFormationRatesIndices(j)+1;
+					FormationRates[j].boundaryField()[patchi][facei] = thermodynamicsMapXML->MW()[index]*R[index];
+				}
+			}
+		}
+	}
+}

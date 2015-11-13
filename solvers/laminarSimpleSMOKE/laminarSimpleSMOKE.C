@@ -45,6 +45,7 @@ Description
 // OpenFOAM
 #include "fvCFD.H"
 #include "multivariateScheme.H"
+#include "radiationModel.H"
 #include "simpleControl.H"
 #include "fvIOoptionList.H"
 
@@ -52,6 +53,7 @@ Description
 #include "sparkModel.H"
 #include "radiativeHeatTransferClass.H"
 #include "utilities.H"
+#include "laminarSMOKEthermoClass.H"
 
 // Linearization
 #include "linearModel.H"
@@ -79,6 +81,7 @@ int main(int argc, char *argv[])
 	
 	#include "createChemicalFields.H"
 	#include "createFvOptions.H"
+	#include "createRadiationModel.H"
 	#include "memoryAllocation.H"
 	#include "properties.H"
 	#include "createAdditionalFields.H"

@@ -51,11 +51,13 @@ Description
 #include "multivariateScheme.H"
 #include "pimpleControl.H"
 #include "fvIOoptionList.H"
+#include "radiationModel.H"
 
 // Additional include files
 #include "sparkModel.H"
 #include "radiativeHeatTransferClass.H"
 #include "utilities.H"
+#include "laminarSMOKEthermoClass.H"
 
 // Homogeneous reactors
 #include "BatchReactorHomogeneousConstantPressure.H"
@@ -99,6 +101,7 @@ int main(int argc, char *argv[])
 	#include "readOptions.H"
 	#include "createChemicalFields.H"
 	#include "createFvOptions.H"
+	#include "createRadiationModel.H"
 	#include "memoryAllocation.H"
 	#include "properties.H"
 	#include "createAdditionalFields.H"
