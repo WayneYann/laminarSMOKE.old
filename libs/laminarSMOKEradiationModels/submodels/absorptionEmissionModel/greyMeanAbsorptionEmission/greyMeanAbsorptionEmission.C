@@ -27,7 +27,6 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "unitConversion.H"
 #include "zeroGradientFvPatchFields.H"
-#include "basicMultiComponentMixture.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 

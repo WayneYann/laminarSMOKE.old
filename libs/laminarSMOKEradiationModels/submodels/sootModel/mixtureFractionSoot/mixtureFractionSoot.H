@@ -62,8 +62,8 @@ SourceFiles
 #include "sootModel.H"
 #include "HashTable.H"
 
-#include "fluidThermo.H"
-#include "singleStepReactingMixture.H"
+//#include "fluidThermo.H"
+//#include "singleStepReactingMixture.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -119,7 +119,6 @@ class mixtureFractionSoot
 
         //- Auto Ptr to singleStepReactingMixture
         const singleStepReactingMixture<ThermoType>& mixture_;
-
 
 public:
 

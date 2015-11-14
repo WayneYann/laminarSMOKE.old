@@ -27,7 +27,7 @@ EXE_LIBS = \
     -lfvOptions \
     -lmeshTools \
     -lsampling \
-    -llaminarSMOKEradiationModels \
+    $(FOAM_USER_LIBBIN)/libradiationModels.so \
     $(SUNDIALS_LIBS) \
     $(MEBDF_LIBS) \
     $(RADAU_LIBS) \

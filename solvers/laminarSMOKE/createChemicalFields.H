@@ -275,7 +275,7 @@ if (outputFormationRatesIndices.size() != 0)
 	}
 }
 
-PtrList<volScalarField> sootFields(13);
+PtrList<volScalarField> sootFields(18);
 if (sootOnTheFlyFill == true)
 {
 	sootFields.set
@@ -509,6 +509,96 @@ if (sootOnTheFlyFill == true)
 			),
 			mesh,
 			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		13,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::R_large",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		14,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::R_small",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		15,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::R_1_2",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		16,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::R_3_4",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		17,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::R_more_4",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::READ_IF_PRESENT,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
 		)
 	);
 }

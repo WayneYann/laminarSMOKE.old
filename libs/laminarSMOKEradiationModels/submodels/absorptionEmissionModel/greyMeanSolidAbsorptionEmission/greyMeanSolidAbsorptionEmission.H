@@ -51,7 +51,7 @@ SourceFiles
 
 #include "absorptionEmissionModel.H"
 #include "solidThermo.H"
-#include "basicMultiComponentMixture.H"
+#include "laminarSMOKEthermoClass.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -90,7 +90,7 @@ private:
         HashTable<label> speciesNames_;
 
         //- Basic multicomponent mixture
-        const basicMultiComponentMixture& mixture_;
+        const laminarSMOKEthermoClass& mixture_;
 
         //- List of solid species data
         List<FixedList<scalar, 2> > solidData_;

@@ -1,3 +1,6 @@
+/* Thermophysical model */
+include/laminarSMOKEthermoClass.C
+
 /* Radiation model */
 radiationModel/radiationModel/radiationModel.C
 radiationModel/radiationModel/radiationModelNew.C
@@ -42,4 +45,4 @@ derivedFvPatchFields/wideBandDiffusiveRadiation/wideBandDiffusiveRadiationMixedF
 derivedFvPatchFields/radiationCoupledBase/radiationCoupledBase.C
 derivedFvPatchFields/greyDiffusiveViewFactor/greyDiffusiveViewFactorFixedValueFvPatchScalarField.C
 
-LIB = $(FOAM_USER_LIBBIN)/liblaminarSMOKEradiationModels
+LIB = $(FOAM_USER_LIBBIN)/libradiationModels

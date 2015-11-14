@@ -24,7 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "mixtureFractionSoot.H"
-#include "singleStepReactingMixture.H"
+//#include "singleStepReactingMixture.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -143,7 +143,6 @@ Foam::radiation::mixtureFractionSoot<ThermoType>::mixtureFractionSoot
     mapFieldMax_ = mixture_.Yprod0()[mapFieldIndex];
 
 }
-
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 

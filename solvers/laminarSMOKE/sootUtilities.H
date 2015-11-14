@@ -113,3 +113,57 @@ double pah_more_than_4_rings_Mass(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer,
 {
 	return smallBinMass(soot_analyzer, rho, Y);
 }
+
+// Returns the total formation rate of soot particles (large BINs) [kg/m3/s]
+double largeBinMassFormationRates(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, const OpenSMOKE::OpenSMOKEVectorDouble& R_times_W)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_large_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_large_global()[i]+1;
+		sum += R_times_W[j];
+	}
+	return sum;
+}
+
+// Returns the total formation rate of soot particles (small BINs) [kg/m3/s]
+double smallBinMassFormationRates(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, const OpenSMOKE::OpenSMOKEVectorDouble& R_times_W)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->bin_indices_small_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->bin_indices_small_global()[i]+1;
+		sum += R_times_W[j];
+	}
+	return sum;
+}
+
+// Returns the total formation rate of PAHs with 1 or 2 aromatic rings (340 nm) [kg/m3/s] 
+double pah12RingsFormationRates(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, const OpenSMOKE::OpenSMOKEVectorDouble& R_times_W)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->pah_1_2_rings_indices_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->pah_1_2_rings_indices_global()[i]+1;
+		sum += R_times_W[j];
+	}
+	return sum;
+}
+
+// Returns the total formation rate of PAHs with 3 or 4 aromatic rings (400 nm) [kg/m3/s] 
+double pah34RingsFormationRates(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, const OpenSMOKE::OpenSMOKEVectorDouble& R_times_W)
+{
+	double sum = 0.;
+	for(int i=0;i<soot_analyzer->pah_3_4_rings_indices_global().size();i++)
+	{
+		const unsigned int j = soot_analyzer->pah_3_4_rings_indices_global()[i]+1;
+		sum += R_times_W[j];
+	}
+	return sum;
+}
+
+// Returns the total formation rate of PAHs with more that aromatic rings (500 nm) [kg/m3/s] 
+double pahMoreThan4RingsFormationRates(OpenSMOKE::PolimiSoot_Analyzer* soot_analyzer, const OpenSMOKE::OpenSMOKEVectorDouble& R_times_W)
+{
+	largeBinMassFormationRates(soot_analyzer, R_times_W);
+}

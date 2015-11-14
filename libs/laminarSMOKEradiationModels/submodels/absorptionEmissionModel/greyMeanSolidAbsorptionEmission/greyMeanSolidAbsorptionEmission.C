@@ -51,12 +51,15 @@ namespace Foam
 Foam::tmp<Foam::scalarField> Foam::radiation::
 greyMeanSolidAbsorptionEmission::X(const word specie) const
 {
+
     const volScalarField& T = thermo_.T();
-    const volScalarField& p = thermo_.p();
+    //const volScalarField& p = thermo_.p();
 
     tmp<scalarField> tXj(new scalarField(T.internalField().size(), 0.0));
     scalarField& Xj = tXj();
-
+// TODO 
+FatalErrorIn("greyMeanSolidAbsorptionEmission::X") << "Model requires to be updated to laminrSMOKEthermoClass"  << abort(FatalError);
+/*
     tmp<scalarField> tRhoInv(new scalarField(T.internalField().size(), 0.0));
     scalarField& rhoInv = tRhoInv();
 
@@ -78,6 +81,9 @@ greyMeanSolidAbsorptionEmission::X(const word specie) const
     }
 
     return (Xj/rhoInv);
+*/
+
+	return Xj;
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -93,10 +99,14 @@ greyMeanSolidAbsorptionEmission
     coeffsDict_((dict.subDict(typeName + "Coeffs"))),
     thermo_(mesh.lookupObject<solidThermo>("thermophysicalProperties")),
     speciesNames_(0),
-    mixture_(dynamic_cast<const basicMultiComponentMixture&>(thermo_)),
+    mixture_(dynamic_cast<const laminarSMOKEthermoClass&>(thermo_)),
     solidData_(mixture_.Y().size())
 {
-    if (!isA<basicMultiComponentMixture>(thermo_))
+
+FatalErrorIn("greyMeanSolidAbsorptionEmission::X") << "Model requires to be updated to laminrSMOKEthermoClass"  << abort(FatalError);
+
+/*
+    if (!isA<laminarSMOKEthermoClass>(thermo_))
     {
         FatalErrorIn
         (
@@ -143,6 +153,7 @@ greyMeanSolidAbsorptionEmission
 
         nFunc++;
     }
+*/
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -158,6 +169,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::radiation::greyMeanSolidAbsorptionEmission::
 calc(const label propertyId) const
 {
+
     tmp<volScalarField> ta
     (
         new volScalarField
@@ -175,7 +187,8 @@ calc(const label propertyId) const
             zeroGradientFvPatchVectorField::typeName
         )
     );
-
+FatalErrorIn("greyMeanSolidAbsorptionEmission::X") << "Model requires to be updated to laminrSMOKEthermoClass"  << abort(FatalError);
+/*
     scalarField& a = ta().internalField();
 
     forAllConstIter(HashTable<label>, speciesNames_, iter)
@@ -187,6 +200,7 @@ calc(const label propertyId) const
     }
 
     ta().correctBoundaryConditions();
+*/
     return ta;
 }
 

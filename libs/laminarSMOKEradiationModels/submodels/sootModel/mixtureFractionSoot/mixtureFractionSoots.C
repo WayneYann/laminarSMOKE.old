@@ -24,9 +24,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 
-#include "mixtureFractionSoot.H"
-#include "makeSootTypes.H"
-#include "thermoPhysicsTypes.H"
+//#include "mixtureFractionSoot.H"
+//#include "makeSootTypes.H"
+//#include "thermoPhysicsTypes.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -36,8 +36,8 @@ namespace radiation
 {
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-makeSootTypesThermo(mixtureFractionSoot, gasHThermoPhysics);
-makeSootTypesThermo(mixtureFractionSoot, gasEThermoPhysics);
+//makeSootTypesThermo(mixtureFractionSoot, gasHThermoPhysics);
+//makeSootTypesThermo(mixtureFractionSoot, gasEThermoPhysics);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

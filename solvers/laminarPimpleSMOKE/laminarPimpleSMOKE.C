@@ -55,7 +55,6 @@ Description
 
 // Additional include files
 #include "sparkModel.H"
-#include "radiativeHeatTransferClass.H"
 #include "utilities.H"
 #include "laminarSMOKEthermoClass.H"
 

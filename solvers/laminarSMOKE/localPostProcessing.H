@@ -13,6 +13,8 @@ if (iPolimiSoot == true)
 		OpenSMOKE::OpenSMOKEVectorDouble x(ns);
 		Eigen::VectorXd y_eigen(ns);
 		Eigen::VectorXd x_eigen(ns);
+		OpenSMOKE::OpenSMOKEVectorDouble c(thermodynamicsMapXML->NumberOfSpecies());
+		OpenSMOKE::OpenSMOKEVectorDouble R(thermodynamicsMapXML->NumberOfSpecies());
 
 		const scalarField& TCells = T.internalField();
 		const scalarField& pCells = p.internalField();
@@ -27,10 +29,15 @@ if (iPolimiSoot == true)
 		scalarField& soot_x_smallCells = sootFields[7].internalField();
 		scalarField& soot_omega_largeCells = sootFields[8].internalField();
 		scalarField& soot_omega_smallCells = sootFields[9].internalField();
-		scalarField& pah_omega_1_2_smallCells = sootFields[10].internalField();
-		scalarField& pah_omega_3_4_smallCells = sootFields[11].internalField();
-		scalarField& pah_omega_more_4_smallCells = sootFields[12].internalField();
+		scalarField& pah_omega_1_2Cells = sootFields[10].internalField();
+		scalarField& pah_omega_3_4Cells = sootFields[11].internalField();
+		scalarField& pah_omega_more_4Cells = sootFields[12].internalField();
 
+		scalarField& R_soot_largeCells = sootFields[13].internalField();
+		scalarField& R_soot_smallCells = sootFields[14].internalField();		
+		scalarField& R_pah_1_2Cells = sootFields[15].internalField();
+		scalarField& R_pah_3_4Cells = sootFields[16].internalField();
+		scalarField& R_pah_more_4Cells = sootFields[17].internalField();
 
 		forAll(TCells, celli)
 		{	
@@ -69,9 +76,29 @@ if (iPolimiSoot == true)
 			soot_omega_smallCells[celli] = sootAnalyzer->omega_small();
 			soot_x_largeCells[celli] = sootAnalyzer->x_large();
 			soot_x_smallCells[celli] = sootAnalyzer->x_small();
-			pah_omega_1_2_smallCells[celli] = sootAnalyzer->omega_pah_1_2_rings();
-			pah_omega_3_4_smallCells[celli] = sootAnalyzer->omega_pah_3_4_rings();
-			pah_omega_more_4_smallCells[celli] = sootAnalyzer->omega_pah_more_than_4_rings();
+			pah_omega_1_2Cells[celli] = sootAnalyzer->omega_pah_1_2_rings();
+			pah_omega_3_4Cells[celli] = sootAnalyzer->omega_pah_3_4_rings();
+			pah_omega_more_4Cells[celli] = sootAnalyzer->omega_pah_more_than_4_rings();
+
+
+			// Concentrations
+			const double cTot = pCells[celli]/PhysicalConstants::R_J_kmol/TCells[celli];
+			Product(cTot,x, &c);
+
+			// Kinetics
+			kineticsMapXML->SetTemperature(TCells[celli]);
+			kineticsMapXML->SetPressure(pCells[celli]);
+			kineticsMapXML->KineticConstants();
+			kineticsMapXML->ReactionRates(c);
+			kineticsMapXML->FormationRates(&R);
+			for(unsigned int i=1;i<=ns;i++)
+				R[i] *= thermodynamicsMapXML->MW()[i];
+
+			R_soot_largeCells[celli] = largeBinMassFormationRates(sootAnalyzer, R);
+			R_soot_smallCells[celli] = smallBinMassFormationRates(sootAnalyzer, R);
+			R_pah_1_2Cells[celli]    = pah12RingsFormationRates(sootAnalyzer, R);
+			R_pah_3_4Cells[celli]    = pah34RingsFormationRates(sootAnalyzer, R);
+			R_pah_more_4Cells[celli] = pahMoreThan4RingsFormationRates(sootAnalyzer, R);
 		}
 
 		forAll(T.boundaryField(), patchi)
@@ -92,6 +119,12 @@ if (iPolimiSoot == true)
 			fvPatchScalarField& ppah_omega_1_2 = sootFields[10].boundaryField()[patchi];
 			fvPatchScalarField& ppah_omega_3_4 = sootFields[11].boundaryField()[patchi];
 			fvPatchScalarField& ppah_omega_more_4 = sootFields[12].boundaryField()[patchi];
+
+			fvPatchScalarField& pR_soot_large = sootFields[13].boundaryField()[patchi];
+			fvPatchScalarField& pR_soot_small = sootFields[14].boundaryField()[patchi];
+			fvPatchScalarField& pR_pah_1_2 = sootFields[15].boundaryField()[patchi];
+			fvPatchScalarField& pR_pah_3_4 = sootFields[16].boundaryField()[patchi];
+			fvPatchScalarField& pR_pah_more_4 = sootFields[17].boundaryField()[patchi];
 
 			forAll(pT, facei)
 			{
@@ -132,6 +165,25 @@ if (iPolimiSoot == true)
 				ppah_omega_1_2[facei] = sootAnalyzer->omega_pah_1_2_rings();
 				ppah_omega_3_4[facei] = sootAnalyzer->omega_pah_3_4_rings();
 				ppah_omega_more_4[facei] = sootAnalyzer->omega_pah_more_than_4_rings();
+
+				// Concentrations
+				const double cTot = pp[facei]/PhysicalConstants::R_J_kmol/pT[facei];
+				Product(cTot,x, &c);
+
+				// Kinetics
+				kineticsMapXML->SetTemperature(pT[facei]);
+				kineticsMapXML->SetPressure(pp[facei]);
+				kineticsMapXML->KineticConstants();
+				kineticsMapXML->ReactionRates(c);
+				kineticsMapXML->FormationRates(&R);
+				for(unsigned int i=1;i<=ns;i++)
+					R[i] *= thermodynamicsMapXML->MW()[i];
+
+				pR_soot_large[facei] = largeBinMassFormationRates(sootAnalyzer, R);
+				pR_soot_small[facei] = smallBinMassFormationRates(sootAnalyzer, R);
+				pR_pah_1_2[facei]    = pah12RingsFormationRates(sootAnalyzer, R);
+				pR_pah_3_4[facei]    = pah34RingsFormationRates(sootAnalyzer, R);
+				pR_pah_more_4[facei] = pahMoreThan4RingsFormationRates(sootAnalyzer, R);
 			}
 		}
 
@@ -235,7 +287,6 @@ if (iPolimiSoot == true)
 		{
 			fvPatchScalarField& pp = p.boundaryField()[patchi];
 			fvPatchScalarField& pT = T.boundaryField()[patchi];
-        
         
 			forAll(pT, facei)
 			{

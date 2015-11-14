@@ -114,6 +114,7 @@ Notes
 
 
 // Soot
+#include "sootUtilities.H"
 #include "soot/OpenSMOKE_PolimiSoot_Analyzer.h"
 
 using namespace Foam;
@@ -201,31 +202,6 @@ int main(int argc, char *argv[])
 		{
 			const dictionary& postProcessingPolimiSootDictionary = postProcessingDictionary.subDict("PolimiSoot");
 			polimiSootBoundaries = List<word>(postProcessingPolimiSootDictionary.lookup("boundaries"));
-			List<word> list_soot_precursors = List<word>(postProcessingPolimiSootDictionary.lookup("sootPrecursors"));
-
-			for(unsigned int k=0;k<list_soot_precursors.size();k++)
-			{
-				bool found = false;
-				for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-				{
-					if (list_soot_precursors[k] == thermodynamicsMapXML->NamesOfSpecies()[i])
-					{
-						soot_precursors_indices.push_back(i);
-						found = true;
-					}	
-				}
-				if (found == false)
-				{
-					Info << "The following soot precursor is not included in the kinetic mechanism: " << list_soot_precursors[k] << endl;
-					abort();
-				}
-				else
-				{
-					Info << "Soot precursor " << k+1 << " " << list_soot_precursors[k] << " : index " << soot_precursors_indices[k] << endl;
-				}
-			}
-
-			
 			Foam::string minimum_bin = postProcessingPolimiSootDictionary.lookup("binMinimum");
 			label bin_index_zero     = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexZero"));
 			label bin_index_final    = readLabel(postProcessingPolimiSootDictionary.lookup("binIndexFinal"));
@@ -240,10 +216,21 @@ int main(int argc, char *argv[])
 			sootAnalyzer->Setup();
 		}
 	}
-
-	if (iPolimiSoot == true)
+	
+	// Formation rates of selected species
+	Eigen::VectorXd outputFormationRatesIndices;
 	{
-		
+		const dictionary& outputDictionary = solverOptionsDictionary.subDict("Output"); 
+		{
+			Switch outputFormationRates = Switch(outputDictionary.lookup(word("formationRates")));
+			if (outputFormationRates == true)
+			{
+				List<word>  listFormationRates(outputDictionary.lookup("listFormationRates"));
+				outputFormationRatesIndices.resize(listFormationRates.size());
+				for (int i=0;i<listFormationRates.size();i++)
+					outputFormationRatesIndices(i) = thermodynamicsMapXML->IndexOfSpecies(listFormationRates[i])-1;
+			}
+		}
 	}
 
     	forAll(timeDirs, timeI)
@@ -269,8 +256,9 @@ int main(int argc, char *argv[])
 		#include "postProcessingMoleFractions.H"
 		#include "postProcessingConcentrations.H"
 
-		#include "calculateEquivalenceRatio.H"
+		#include "calculateFormationRates.H"
 
+	//	#include "calculateEquivalenceRatio.H"
 	//	#include "properties.H"
 	//	#include "fluxes.H"
 	// 	#include "postProcessingMixtureFraction.H"

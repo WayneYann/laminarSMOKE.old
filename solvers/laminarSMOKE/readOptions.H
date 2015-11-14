@@ -77,6 +77,7 @@ const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel
 	energyEquation = Switch(physicalModelDictionary.lookup(word("energyEquation")));
 	speciesEquations = Switch(physicalModelDictionary.lookup(word("speciesEquations")));
 	tauEquation = Switch(physicalModelDictionary.lookup(word("tauEquation")));
+	zMixEquation = Switch(physicalModelDictionary.lookup(word("zMixEquation")));
 	homogeneousReactions = Switch(physicalModelDictionary.lookup(word("homogeneousReactions")));
 	includeDpDt = Switch(physicalModelDictionary.lookup(word("includeDpDt")));
 	iMassDiffusionInEnergyEquation = Switch(physicalModelDictionary.lookup(word("massDiffusionInEnergyEquation")));
