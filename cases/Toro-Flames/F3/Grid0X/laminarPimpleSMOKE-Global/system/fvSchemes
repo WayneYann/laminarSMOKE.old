@@ -35,7 +35,9 @@ divSchemes
     div(Jc,Yi)                          Gauss limitedLinear01 1;
     div(phiU,p)                         Gauss upwind;
     div((gas::mu*dev2(grad(U).T()))) 	Gauss linear;
-
+    div(phi,zMix)    			Gauss linear;
+    div(phi,tau)    			Gauss linear;
+    div(Ji,Ii_h)    			Gauss upwind;
 }
 
 laplacianSchemes
