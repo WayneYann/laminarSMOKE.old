@@ -267,6 +267,7 @@ label sootIntegralUpdate  = 1;
 label sootIntegralCounter = sootIntegralUpdate;
 Switch sootOnTheFlyFill = false;
 std::ofstream* fSootIntegrals;
+List<vector> pnts_soot_psdf;
 {	
 		const dictionary& postProcessingDictionary = solverOptions.subDict("PostProcessing");		
 		iPolimiSoot = Switch(postProcessingDictionary.lookup(word("soot")));
@@ -311,8 +312,6 @@ std::ofstream* fSootIntegrals;
 			scalar fractal_diameter  = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
 			Foam::string planck_coefficient = postProcessingPolimiSootDictionary.lookup("planckCoefficient");
 
-
-
 			sootAnalyzer = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
 			sootAnalyzer->SetFractalDiameter(fractal_diameter);
 			sootAnalyzer->SetMinimumSection(minimum_bin);
@@ -320,6 +319,11 @@ std::ofstream* fSootIntegrals;
 			sootAnalyzer->SetPlanckAbsorptionCoefficient(planck_coefficient);
 			sootAnalyzer->Setup();
 
+			// Particle size distribution function
+			List<vector> pnts_soot_psdf_dummy(postProcessingPolimiSootDictionary.lookup("PSDF"));
+			pnts_soot_psdf = pnts_soot_psdf_dummy;
+
+			// Prepare soot.integrals file
 			if ( !boost::filesystem::exists("soot.integrals") )
 			{
   				fSootIntegrals = new std::ofstream("soot.integrals", std::ios::out);

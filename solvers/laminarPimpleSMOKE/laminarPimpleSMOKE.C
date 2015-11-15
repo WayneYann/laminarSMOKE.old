@@ -52,6 +52,7 @@ Description
 #include "pimpleControl.H"
 #include "fvIOoptionList.H"
 #include "radiationModel.H"
+#include "interpolation.H"
 
 // Additional include files
 #include "sparkModel.H"
