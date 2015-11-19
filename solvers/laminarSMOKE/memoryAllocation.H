@@ -15,14 +15,17 @@ BatchReactorHomogeneousConstantVolume   batchReactorHomogeneousConstantVolume(*t
 // ODE Solver (constant pressure)
 typedef OdeSMOKE::KernelDense<OpenSMOKE::BatchReactorHomogeneousConstantPressure_ODE_OpenSMOKE> denseOdeConstantPressure;
 typedef OdeSMOKE::MethodGear<denseOdeConstantPressure> methodGearConstantPressure;
-OdeSMOKE::MultiValueSolver<methodGearConstantPressure> odeSolverConstantPressure;
-odeSolverConstantPressure.SetReactor(&batchReactorHomogeneousConstantPressure);
+autoPtr< OdeSMOKE::MultiValueSolver<methodGearConstantPressure> > odeSolverConstantPressure;
+odeSolverConstantPressure.reset(new OdeSMOKE::MultiValueSolver<methodGearConstantPressure>);
+odeSolverConstantPressure().SetReactor(&batchReactorHomogeneousConstantPressure);
 
 // ODE Solver (constant volume)
 typedef OdeSMOKE::KernelDense<OpenSMOKE::BatchReactorHomogeneousConstantVolume_ODE_OpenSMOKE> denseOdeConstantVolume;
 typedef OdeSMOKE::MethodGear<denseOdeConstantVolume> methodGearConstantVolume;
-OdeSMOKE::MultiValueSolver<methodGearConstantVolume> odeSolverConstantVolume;	
-odeSolverConstantVolume.SetReactor(&batchReactorHomogeneousConstantVolume);
+autoPtr< OdeSMOKE::MultiValueSolver<methodGearConstantVolume> > odeSolverConstantVolume;
+odeSolverConstantVolume.reset(new OdeSMOKE::MultiValueSolver<methodGearConstantVolume>);
+odeSolverConstantVolume().SetReactor(&batchReactorHomogeneousConstantVolume);
+
 
 #if OPENSMOKE_USE_DVODE == 1
 OpenSMOKE::BatchReactorHomogeneousConstantPressure_ODE_DVODE *dvodeSolverConstantPressure;

@@ -597,14 +597,81 @@ if (iPolimiSoot == true)
 			// Soot analysis
 			sootAnalyzer->Analysis(pT[facei], pp[facei], rhoGas, y_eigen, x_eigen);	
 			sootAnalyzer->Distribution();
-			sootAnalyzer->WriteDistribution(fOutput, face_x, pT[facei]);
+			sootAnalyzer->WriteDistribution(fOutput, face_x, 0., 0., pT[facei]);
 		}
 		
 		fOutput.close();
 	}
-	
+
 	// Distribution in a specific point
+	if (pnts_soot_psdf.size() > 0)
 	{
-		//label labelOfClosestCell mesh.findCell(1e-8,);
+		Info << "Post processing PSDF..." << endl;
+
+		for (unsigned int i=0;i<pnts_soot_psdf.size();i++)
+		{
+			const double xx = pnts_soot_psdf[i][0];
+			const double yy = pnts_soot_psdf[i][1];
+			const double zz = pnts_soot_psdf[i][2];
+
+			Info << "Post processing point " << i+1 << " @ " << xx << " " << yy << " " << zz << endl;
+
+			vector pos(xx,yy,zz);
+			label cellI = mesh.findCell(pos);
+
+			if (cellI > -1)
+			{
+				std::stringstream tag;
+				tag << i;
+				std::string name_file = "/soot::PSDF_" + tag.str();
+
+				// File name
+				fileName outputFile(runTime.path()/runTime.timeName()/name_file.c_str());
+				std::ofstream fOutput(outputFile.c_str(), std::ios::out);
+				fOutput.setf(std::ios::scientific);
+				sootAnalyzer->WriteDistributionLabel(fOutput);
+
+				// Temperature and pressure
+				autoPtr<interpolation<scalar> > Tinterp = interpolation<scalar>::New("cellPoint", T);
+				scalar Tint = Tinterp->interpolate(pos, cellI);
+				autoPtr<interpolation<scalar> > pinterp = interpolation<scalar>::New("cellPoint", p);
+				scalar pint = pinterp->interpolate(pos, cellI);
+
+				Info << "Cell: " << cellI << " T: " << Tint << " P: " << pint << endl; 
+
+
+				double mw;
+
+				// Extract the mass fractions
+				for(unsigned int i=0;i<ns;i++)
+				{
+					autoPtr<interpolation<scalar> > Yinterp = interpolation<scalar>::New("cellPoint", Y[i]);
+					y[i+1] = Yinterp->interpolate(pos, cellI);
+				}
+
+				const double sum = y.SumElements();
+				for(unsigned int i=0;i<ns;i++)
+					y[i+1] /= sum;
+
+				// Molecular weight
+				thermodynamicsMapXML->MoleFractions_From_MassFractions(x, mw, y);
+
+				// Eigen vectors
+				for(unsigned int i=0;i<ns;i++)
+				{
+					y_eigen(i) = y[i+1];
+					x_eigen(i) = x[i+1];
+				}
+
+				// Density
+				const double rhoGas = pint*mw/PhysicalConstants::R_J_kmol/Tint;
+
+				// Soot analysis
+				sootAnalyzer->Analysis(Tint, pint, rhoGas, y_eigen, x_eigen);	
+				sootAnalyzer->Distribution();
+				sootAnalyzer->WriteDistribution(fOutput, xx, yy, zz, Tint);
+				fOutput.close();
+			}
+		}
 	}
 }

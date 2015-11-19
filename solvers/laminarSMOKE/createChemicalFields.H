@@ -288,7 +288,7 @@ if (sootOnTheFlyFill == true)
 				"soot::fv_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -306,7 +306,7 @@ if (sootOnTheFlyFill == true)
 				"soot::fv_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -324,7 +324,7 @@ if (sootOnTheFlyFill == true)
 				"soot::rho_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -342,7 +342,7 @@ if (sootOnTheFlyFill == true)
 				"soot::rho_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -360,7 +360,7 @@ if (sootOnTheFlyFill == true)
 				"soot::N_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -378,7 +378,7 @@ if (sootOnTheFlyFill == true)
 				"soot::N_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -396,7 +396,7 @@ if (sootOnTheFlyFill == true)
 				"soot::x_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -414,7 +414,7 @@ if (sootOnTheFlyFill == true)
 				"soot::x_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -432,7 +432,7 @@ if (sootOnTheFlyFill == true)
 				"soot::omega_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -450,7 +450,7 @@ if (sootOnTheFlyFill == true)
 				"soot::omega_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -468,7 +468,7 @@ if (sootOnTheFlyFill == true)
 				"pah::omega_1_2",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -486,7 +486,7 @@ if (sootOnTheFlyFill == true)
 				"pah::omega_3_4",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -504,7 +504,7 @@ if (sootOnTheFlyFill == true)
 				"pah::omega_more_4",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -522,7 +522,7 @@ if (sootOnTheFlyFill == true)
 				"soot::R_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -540,7 +540,7 @@ if (sootOnTheFlyFill == true)
 				"soot::R_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -558,7 +558,7 @@ if (sootOnTheFlyFill == true)
 				"pah::R_1_2",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -576,7 +576,7 @@ if (sootOnTheFlyFill == true)
 				"pah::R_3_4",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -594,7 +594,7 @@ if (sootOnTheFlyFill == true)
 				"pah::R_more_4",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,

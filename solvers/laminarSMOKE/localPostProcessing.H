@@ -187,15 +187,11 @@ if (iPolimiSoot == true)
 			}
 		}
 
-		// Distribution in a specific point
+		// Distribution in a specific point (TODO)
+/*
 		if (pnts_soot_psdf.size() > 0)
 		{
 			Info << "Post processing PSDF..." << endl;
-
-			fileName outputFile(runTime.path()/runTime.timeName()/"/soot::PSDF");
-			std::ofstream fOutput(outputFile.c_str(), std::ios::out);
-			fOutput.setf(std::ios::scientific);
-			sootAnalyzer->WriteDistributionLabel(fOutput);
 
 			for (unsigned int i=0;i<pnts_soot_psdf.size();i++)
 			{
@@ -208,50 +204,61 @@ if (iPolimiSoot == true)
 				vector pos(xx,yy,zz);
 				label cellI = mesh.findCell(pos);
 
-				// Temperature and pressure
-				autoPtr<interpolation<scalar> > Tinterp = interpolation<scalar>::New("cellPoint", T);
-				scalar Tint = Tinterp->interpolate(pos, cellI);
-				autoPtr<interpolation<scalar> > pinterp = interpolation<scalar>::New("cellPoint", p);
-				scalar pint = pinterp->interpolate(pos, cellI);
-
-				Info << "Cell: " << cellI << " T: " << Tint << " P: " << pint << endl; 
-
-
-				double mw;
-
-				// Extract the mass fractions
-				for(unsigned int i=0;i<ns;i++)
+				if (cellI > -1)
 				{
-					autoPtr<interpolation<scalar> > Yinterp = interpolation<scalar>::New("cellPoint", Y[i]);
-					y[i+1] = Yinterp->interpolate(pos, cellI);
+					std::stringstream tag;
+					tag << i;
+					std::string name_file = "/soot::PSDF_" + tag.str();
+
+					// File name
+					fileName outputFile(runTime.path()/runTime.timeName()/name_file.c_str());
+					std::ofstream fOutput(outputFile.c_str(), std::ios::out);
+					fOutput.setf(std::ios::scientific);
+					sootAnalyzer->WriteDistributionLabel(fOutput);
+
+					// Temperature and pressure
+					autoPtr<interpolation<scalar> > Tinterp = interpolation<scalar>::New("cellPoint", T);
+					scalar Tint = Tinterp->interpolate(pos, cellI);
+					autoPtr<interpolation<scalar> > pinterp = interpolation<scalar>::New("cellPoint", p);
+					scalar pint = pinterp->interpolate(pos, cellI);
+
+					Info << "Cell: " << cellI << " T: " << Tint << " P: " << pint << endl; 
+
+					double mw;
+
+					// Extract the mass fractions
+					for(unsigned int i=0;i<ns;i++)
+					{
+						autoPtr<interpolation<scalar> > Yinterp = interpolation<scalar>::New("cellPoint", Y[i]);
+						y[i+1] = Yinterp->interpolate(pos, cellI);
+					}
+
+					const double sum = y.SumElements();
+					for(unsigned int i=0;i<ns;i++)
+						y[i+1] /= sum;
+
+					// Molecular weight
+					thermodynamicsMapXML->MoleFractions_From_MassFractions(x, mw, y);
+
+					// Eigen vectors
+					for(unsigned int i=0;i<ns;i++)
+					{
+						y_eigen(i) = y[i+1];
+						x_eigen(i) = x[i+1];
+					}
+
+					// Density
+					const double rhoGas = pint*mw/PhysicalConstants::R_J_kmol/Tint;
+
+					// Soot analysis
+					sootAnalyzer->Analysis(Tint, pint, rhoGas, y_eigen, x_eigen);	
+					sootAnalyzer->Distribution();
+					sootAnalyzer->WriteDistribution(fOutput, xx, yy, zz, Tint);
+					fOutput.close();					
 				}
-
-				const double sum = y.SumElements();
-				for(unsigned int i=0;i<ns;i++)
-					y[i+1] /= sum;
-
-				// Molecular weight
-				thermodynamicsMapXML->MoleFractions_From_MassFractions(x, mw, y);
-
-				// Eigen vectors
-				for(unsigned int i=0;i<ns;i++)
-				{
-					y_eigen(i) = y[i+1];
-					x_eigen(i) = x[i+1];
-				}
-
-				// Density
-				const double rhoGas = pint*mw/PhysicalConstants::R_J_kmol/Tint;
-
-				// Soot analysis
-				sootAnalyzer->Analysis(Tint, pint, rhoGas, y_eigen, x_eigen);	
-				sootAnalyzer->Distribution();
-				sootAnalyzer->WriteDistribution(fOutput, xx, yy, zz, Tint);
-				fOutput << std::endl;
-				fOutput << std::endl;
 			}
 		}
-
+*/
 		double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 
 		Info << "done in " << tEnd - tStart << " s  (" << (tEnd-tStart)/double(mesh.nCells())*1000. << " ms per cell)" << endl;
@@ -269,20 +276,24 @@ if (iPolimiSoot == true)
 		const double pah_1_2_rings_mass = pah_1_2_rings_Mass(sootAnalyzer, rho, Y);
 		const double pah_3_4_rings_mass = pah_3_4_rings_Mass(sootAnalyzer, rho, Y);
 		const double pah_more_than_4_rings_mass = pah_more_than_4_rings_Mass(sootAnalyzer, rho, Y);
-		
-		*fSootIntegrals << std::setw(20) << runTime.value();
-		*fSootIntegrals << std::setw(20) << large_bin_mass;
-		*fSootIntegrals << std::setw(20) << large_bin_volume;
-		*fSootIntegrals << std::setw(20) << large_bin_particles;		
-		*fSootIntegrals << std::setw(20) << small_bin_mass;
-		*fSootIntegrals << std::setw(20) << small_bin_volume;
-		*fSootIntegrals << std::setw(20) << small_bin_particles;
-		*fSootIntegrals << std::setw(20) << soot_dimer_mass;		
-		*fSootIntegrals << std::setw(20) << pah_1_2_rings_mass;
-		*fSootIntegrals << std::setw(20) << pah_3_4_rings_mass;
-		*fSootIntegrals << std::setw(20) << pah_more_than_4_rings_mass;
-		*fSootIntegrals << std::endl;
 
+		// Only if the processor is the master, write to the file
+		if (Pstream::master())
+		{
+	    		fSootIntegrals() << std::setw(20) << runTime.value();
+			fSootIntegrals() << std::setw(20) << large_bin_mass;
+			fSootIntegrals() << std::setw(20) << large_bin_volume;
+			fSootIntegrals() << std::setw(20) << large_bin_particles;		
+			fSootIntegrals() << std::setw(20) << small_bin_mass;
+			fSootIntegrals() << std::setw(20) << small_bin_volume;
+			fSootIntegrals() << std::setw(20) << small_bin_particles;
+			fSootIntegrals() << std::setw(20) << soot_dimer_mass;		
+			fSootIntegrals() << std::setw(20) << pah_1_2_rings_mass;
+			fSootIntegrals() << std::setw(20) << pah_3_4_rings_mass;
+			fSootIntegrals() << std::setw(20) << pah_more_than_4_rings_mass;
+			fSootIntegrals() << std::endl;
+		}
+		
 		Info << "Soot mass:            " << large_bin_mass << endl;
 		Info << "Soot volume:          " << large_bin_volume << endl;
 		Info << "Soot particles:       " << large_bin_particles << endl;		

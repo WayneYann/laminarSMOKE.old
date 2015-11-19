@@ -266,8 +266,8 @@ Switch iPolimiSoot = false;
 label sootIntegralUpdate  = 1;
 label sootIntegralCounter = sootIntegralUpdate;
 Switch sootOnTheFlyFill = false;
-std::ofstream* fSootIntegrals;
-List<vector> pnts_soot_psdf;
+autoPtr<std::ofstream> fSootIntegrals;
+//List<vector> pnts_soot_psdf;
 {	
 		const dictionary& postProcessingDictionary = solverOptions.subDict("PostProcessing");		
 		iPolimiSoot = Switch(postProcessingDictionary.lookup(word("soot")));
@@ -275,30 +275,6 @@ List<vector> pnts_soot_psdf;
 		if (iPolimiSoot == true)
 		{
 			const dictionary& postProcessingPolimiSootDictionary = postProcessingDictionary.subDict("PolimiSoot");
-		/*	List<word> list_soot_precursors = List<word>(postProcessingPolimiSootDictionary.lookup("sootPrecursors"));
-
-			for(unsigned int k=0;k<list_soot_precursors.size();k++)
-			{
-				bool found = false;
-				for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-				{
-					if (list_soot_precursors[k] == thermodynamicsMapXML->NamesOfSpecies()[i])
-					{
-						soot_precursors_indices.push_back(i);
-						found = true;
-					}	
-				}
-				if (found == false)
-				{
-					Info << "The following soot precursor is not included in the kinetic mechanism: " << list_soot_precursors[k] << endl;
-					abort();
-				}
-				else
-				{
-					Info << "Soot precursor " << k+1 << " " << list_soot_precursors[k] << " : index " << soot_precursors_indices[k] << endl;
-				}
-			}
-		*/
 			
 			sootOnTheFlyFill    = Switch(postProcessingPolimiSootDictionary.lookup(word("onTheFlyFill")));
 			sootIntegralUpdate  = readLabel(postProcessingPolimiSootDictionary.lookup("integralUpdate"));
@@ -320,33 +296,32 @@ List<vector> pnts_soot_psdf;
 			sootAnalyzer->Setup();
 
 			// Particle size distribution function
-			List<vector> pnts_soot_psdf_dummy(postProcessingPolimiSootDictionary.lookup("PSDF"));
-			pnts_soot_psdf = pnts_soot_psdf_dummy;
+			// List<vector> pnts_soot_psdf_dummy(postProcessingPolimiSootDictionary.lookup("PSDF"));
+			// pnts_soot_psdf = pnts_soot_psdf_dummy;
 
-			// Prepare soot.integrals file
+			// Soot integrals
 			if ( !boost::filesystem::exists("soot.integrals") )
 			{
-  				fSootIntegrals = new std::ofstream("soot.integrals", std::ios::out);
-				fSootIntegrals->setf(std::ios::scientific);
+  				fSootIntegrals.reset(new std::ofstream("soot.integrals", std::ios::out));
+				fSootIntegrals().setf(std::ios::scientific);
 
-				*fSootIntegrals << std::setw(20) << "time";
-				*fSootIntegrals << std::setw(20) << "soot_mass[kg]";
-				*fSootIntegrals << std::setw(20) << "soot_volume[m3]";
-				*fSootIntegrals << std::setw(20) << "soot_particles[#]";		
-				*fSootIntegrals << std::setw(20) << "prec_mass[kg]";
-				*fSootIntegrals << std::setw(20) << "prec_volume[m3]";
-				*fSootIntegrals << std::setw(20) << "prec_partciles[#]";
-				*fSootIntegrals << std::setw(20) << "dimer_mass[kg]";		
-				*fSootIntegrals << std::setw(20) << "pah12_340nm[kg]";
-				*fSootIntegrals << std::setw(20) << "pah34_400nm[kg]";
-				*fSootIntegrals << std::setw(20) << "pahlarge_500nm[kg]";
-				*fSootIntegrals << std::endl;
+				fSootIntegrals() << std::setw(20) << "time";
+				fSootIntegrals() << std::setw(20) << "soot_mass[kg]";
+				fSootIntegrals() << std::setw(20) << "soot_volume[m3]";
+				fSootIntegrals() << std::setw(20) << "soot_particles[#]";		
+				fSootIntegrals() << std::setw(20) << "prec_mass[kg]";
+				fSootIntegrals() << std::setw(20) << "prec_volume[m3]";
+				fSootIntegrals() << std::setw(20) << "prec_partciles[#]";
+				fSootIntegrals() << std::setw(20) << "dimer_mass[kg]";		
+				fSootIntegrals() << std::setw(20) << "pah12_340nm[kg]";
+				fSootIntegrals() << std::setw(20) << "pah34_400nm[kg]";
+				fSootIntegrals() << std::setw(20) << "pahlarge_500nm[kg]";
+				fSootIntegrals() << std::endl;
 			}
 			else
 			{
-				fSootIntegrals = new std::ofstream();
-				fSootIntegrals->open("soot.integrals", std::ios::app);
-				fSootIntegrals->setf(std::ios::scientific);
+				fSootIntegrals.reset(new std::ofstream("soot.integrals", std::ios::app));
+				fSootIntegrals().setf(std::ios::scientific);
 			}
 		}
 }

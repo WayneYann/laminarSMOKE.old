@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 	bool iPolimiSoot = false;
 	List<word> polimiSootBoundaries;
 	std::vector<int> soot_precursors_indices;
-
+	List<vector> pnts_soot_psdf;
 	{	
 		const dictionary& postProcessingDictionary = solverOptionsDictionary.subDict("PostProcessing");
 		
@@ -214,6 +214,10 @@ int main(int argc, char *argv[])
 			sootAnalyzer->SetMinimumSection(minimum_bin);
 			sootAnalyzer->SetDensity(bin_index_zero, bin_index_final, bin_density_zero, bin_density_final);
 			sootAnalyzer->Setup();
+
+			// Particle size distribution function
+			List<vector> pnts_soot_psdf_dummy(postProcessingPolimiSootDictionary.lookup("PSDF"));
+			pnts_soot_psdf = pnts_soot_psdf_dummy;
 		}
 	}
 	
