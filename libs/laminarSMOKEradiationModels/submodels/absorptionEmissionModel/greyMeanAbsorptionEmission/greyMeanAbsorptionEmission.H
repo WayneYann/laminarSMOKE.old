@@ -90,6 +90,7 @@ SourceFiles
 #include "HashTable.H"
 #include "absorptionCoeffs.H"
 #include "laminarSMOKEthermoClass.H"
+#include "sootRadiationPlanckModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -141,6 +142,9 @@ private:
 
         //- Pointer list of species in the registry involved in the absorption
         UPtrList<volScalarField> Yj_;
+
+	//- Soot radiation: Planck coefficient
+	SootPlanckCoefficient soot_planck_coefficient_;
 
 
 public:

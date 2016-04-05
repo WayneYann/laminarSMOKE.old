@@ -39,7 +39,7 @@
 						odeSolverConstantPressure().SetInitialConditions(t0, y0);
 
 						// Additional ODE solver options
-						if (celli == 0)
+						//if (celli == 0)
 						{
 							// Set linear algebra options
 							odeSolverConstantPressure().SetLinearAlgebraSolver(odeParameterBatchReactorHomogeneous.linear_algebra());
@@ -68,7 +68,7 @@
 						odeSolverConstantVolume().SetInitialConditions(t0, y0);
 
 						// Additional ODE solver options
-						if (celli == 0)
+						//if (celli == 0)
 						{
 							// Set linear algebra options
 							odeSolverConstantVolume().SetLinearAlgebraSolver(odeParameterBatchReactorHomogeneous.linear_algebra());

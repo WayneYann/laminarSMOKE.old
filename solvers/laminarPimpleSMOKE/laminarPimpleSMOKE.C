@@ -51,8 +51,8 @@ Description
 #include "multivariateScheme.H"
 #include "pimpleControl.H"
 #include "fvIOoptionList.H"
-#include "radiationModel.H"
 #include "interpolation.H"
+#include "radiationModel.H"
 
 // Additional include files
 #include "sparkModel.H"

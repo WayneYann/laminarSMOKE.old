@@ -15,8 +15,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-radiation               on;
-radiationModel          P1;
+radiation               off;
+radiationModel          none;
 solverFreq 	        10;
 absorptionEmissionModel greyMeanAbsorptionEmission;
 scatterModel    	none;
@@ -47,7 +47,9 @@ greyMeanAbsorptionEmissionCoeffs
 {
     lookUpTableFileName     none;
 
-    EhrrCoeff                0.0;
+    EhrrCoeff               0.0;
+
+    sootRadiation	    none;
 
     H2O
     {

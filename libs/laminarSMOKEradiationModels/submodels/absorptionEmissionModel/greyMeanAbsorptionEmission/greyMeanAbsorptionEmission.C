@@ -175,6 +175,22 @@ Foam::radiation::greyMeanAbsorptionEmission::greyMeanAbsorptionEmission
 
         }
     }
+
+    	word soot_radiation(coeffsDict_.lookup("sootRadiation"));
+
+	if (soot_radiation == "none")
+		soot_planck_coefficient_ = SOOT_RADIATION_PLANCK_COEFFICIENT_NONE;
+	else if (soot_radiation == "Smooke")
+		soot_planck_coefficient_ = SOOT_RADIATION_PLANCK_COEFFICIENT_SMOOKE;
+	else if (soot_radiation == "Kent")
+		soot_planck_coefficient_ = SOOT_RADIATION_PLANCK_COEFFICIENT_KENT;
+	else if (soot_radiation == "Sazhin")
+		soot_planck_coefficient_ = SOOT_RADIATION_PLANCK_COEFFICIENT_SAZHIN;
+	else
+	{
+		FatalErrorIn( "Foam::radiation::greyMeanAbsorptionEmission::greyMeanAbsorptionEmission")
+	    		<< "Wrong sootRadiation model. Available models: none | Smooke | Kent | Sazhin " << abort(FatalError);
+	}
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -257,7 +273,30 @@ Foam::tmp<Foam::volScalarField> Foam::radiation::greyMeanAbsorptionEmission::aCo
                   + b[0]
                 );
         }
+
+	
+	
     }
+
+    // Soot contribution
+    if (soot_planck_coefficient_ != SOOT_RADIATION_PLANCK_COEFFICIENT_NONE)
+    {
+	const scalarField& fvsoot = T.db().objectRegistry::lookupObject<volScalarField>("soot::fv_large").internalField();
+
+	forAll(a, cellI)
+    	{
+		const scalar fvi = fvsoot[cellI];
+		const scalar Ti = T[cellI];
+															
+		if (soot_planck_coefficient_ == SOOT_RADIATION_PLANCK_COEFFICIENT_SMOOKE)
+			a[cellI] += 1307.*fvi*Ti;						// [1/m]	(Smooke et al. Combustion and Flame 2009)
+		else if (soot_planck_coefficient_ == SOOT_RADIATION_PLANCK_COEFFICIENT_KENT)
+			a[cellI] += 2262.*fvi*Ti;						// [1/m]	(Kent al. Combustion and Flame 1990)
+		else if (soot_planck_coefficient_ == SOOT_RADIATION_PLANCK_COEFFICIENT_SAZHIN)
+			a[cellI] += 1232.*fvi*(1. + 4.8e-4*(Ti - 2000.));			// [1/m]	(Sazhin, Fluent 1994)	
+        }
+    }
+
     ta().correctBoundaryConditions();
     return ta;
 }

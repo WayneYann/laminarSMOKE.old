@@ -111,7 +111,7 @@ Notes
 #include "IOsampledSurfaces.H"
 #include "fvCFD.H"
 #include "multivariateScheme.H"
-
+#include "interpolation.H"
 
 // Soot
 #include "sootUtilities.H"

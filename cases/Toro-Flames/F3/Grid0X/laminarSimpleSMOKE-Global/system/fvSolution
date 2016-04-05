@@ -91,16 +91,12 @@ solvers
 
     G
     {
-      //  solver          PCG;
-      //  preconditioner  DIC;
-       // tolerance       1e-07;
-       // relTol          1e-04;
-    solver          smoothSolver;
+        solver          smoothSolver;
         smoother        symGaussSeidel;
         tolerance       1e-07;
         relTol          1e-06;
         minIter         1;
-	}
+    }
 }
 
 SIMPLE

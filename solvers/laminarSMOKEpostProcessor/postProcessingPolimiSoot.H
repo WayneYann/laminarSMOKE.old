@@ -245,7 +245,7 @@ if (iPolimiSoot == true)
 			"soot::R_large",
 			mesh.time().timeName(),
 			mesh,
-			IOobject::READ_IF_PRESENT,
+			IOobject::NO_READ,
 			IOobject::AUTO_WRITE
 		),
 		mesh,
@@ -259,7 +259,7 @@ if (iPolimiSoot == true)
 			"soot::R_small",
 			mesh.time().timeName(),
 			mesh,
-			IOobject::READ_IF_PRESENT,
+			IOobject::NO_READ,
 			IOobject::AUTO_WRITE
 		),
 		mesh,
@@ -273,7 +273,7 @@ if (iPolimiSoot == true)
 			"pah::R_1_2",
 			mesh.time().timeName(),
 			mesh,
-			IOobject::READ_IF_PRESENT,
+			IOobject::NO_READ,
 			IOobject::AUTO_WRITE
 		),
 		mesh,
@@ -287,7 +287,7 @@ if (iPolimiSoot == true)
 			"pah::R_3_4",
 			mesh.time().timeName(),
 			mesh,
-			IOobject::READ_IF_PRESENT,
+			IOobject::NO_READ,
 			IOobject::AUTO_WRITE
 		),
 		mesh,
@@ -301,7 +301,7 @@ if (iPolimiSoot == true)
 			"pah::R_more_4",
 			mesh.time().timeName(),
 			mesh,
-			IOobject::READ_IF_PRESENT,
+			IOobject::NO_READ,
 			IOobject::AUTO_WRITE
 		),
 		mesh,

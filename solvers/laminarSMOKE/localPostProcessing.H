@@ -209,9 +209,15 @@ if (iPolimiSoot == true)
 					std::stringstream tag;
 					tag << i;
 					std::string name_file = "/soot::PSDF_" + tag.str();
-
+					std::string name_path = "PSDFs/" + runTime.timeName();
 					// File name
-					fileName outputFile(runTime.path()/runTime.timeName()/name_file.c_str());
+					//fileName outputFile(runTime.path()/runTime.timeName()/name_file.c_str());
+					std::string command1 = "mkdir PSDFs";
+					std::string command2 = "mkdir " + name_path;
+					Info << command1 << " " << name_file << " " << name_path << endl;
+					system(command1.c_str());
+					system(command2.c_str());
+					fileName outputFile(name_path/name_file.c_str());
 					std::ofstream fOutput(outputFile.c_str(), std::ios::out);
 					fOutput.setf(std::ios::scientific);
 					sootAnalyzer->WriteDistributionLabel(fOutput);
