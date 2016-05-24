@@ -51,6 +51,7 @@ Description
 #include "multivariateScheme.H"
 #include "pimpleControl.H"
 #include "fvIOoptionList.H"
+#include "interpolation.H"
 
 // Additional include files
 #include "sparkModel.H"

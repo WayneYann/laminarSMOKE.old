@@ -47,6 +47,7 @@ Description
 #include "multivariateScheme.H"
 #include "simpleControl.H"
 #include "fvIOoptionList.H"
+#include "interpolation.H"
 
 // Additional include files
 #include "sparkModel.H"

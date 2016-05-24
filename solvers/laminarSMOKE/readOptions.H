@@ -76,6 +76,7 @@ const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel
 	momentumEquations = Switch(physicalModelDictionary.lookup(word("momentumEquations")));
 	energyEquation = Switch(physicalModelDictionary.lookup(word("energyEquation")));
 	speciesEquations = Switch(physicalModelDictionary.lookup(word("speciesEquations")));
+	zMixEquation = Switch(physicalModelDictionary.lookup(word("zMixEquation")));
 	tauEquation = Switch(physicalModelDictionary.lookup(word("tauEquation")));
 	homogeneousReactions = Switch(physicalModelDictionary.lookup(word("homogeneousReactions")));
 	includeDpDt = Switch(physicalModelDictionary.lookup(word("includeDpDt")));
@@ -286,7 +287,10 @@ Switch iPolimiSoot = false;
 label sootIntegralUpdate  = 1;
 label sootIntegralCounter = sootIntegralUpdate;
 Switch sootOnTheFlyFill = false;
-std::ofstream* fSootIntegrals;
+//std::ofstream* fSootIntegrals;
+autoPtr<std::ofstream> fSootIntegrals;
+
+//List<vector> pnts_soot_psdf;
 {	
 		const dictionary& postProcessingDictionary = solverOptions.subDict("PostProcessing");		
 		iPolimiSoot = Switch(postProcessingDictionary.lookup(word("soot")));
@@ -329,7 +333,7 @@ std::ofstream* fSootIntegrals;
 			scalar bin_density_zero  = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityZero"));
 			scalar bin_density_final = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityFinal"));
 			scalar fractal_diameter  = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
-			Foam::string planck_coefficient = readLabel(postProcessingPolimiSootDictionary.lookup("planckCoefficient"));
+			Foam::string planck_coefficient = postProcessingPolimiSootDictionary.lookup("planckCoefficient");
 
 
 
@@ -340,29 +344,33 @@ std::ofstream* fSootIntegrals;
 			sootAnalyzer->SetPlanckAbsorptionCoefficient(planck_coefficient);
 			sootAnalyzer->Setup();
 
+			// Particle size distribution function
+			// List<vector> pnts_soot_psdf_dummy(postProcessingPolimiSootDictionary.lookup("PSDF"));
+			// pnts_soot_psdf = pnts_soot_psdf_dummy;
+
+			// Soot integrals
 			if ( !boost::filesystem::exists("soot.integrals") )
 			{
-  				fSootIntegrals = new std::ofstream("soot.integrals", std::ios::out);
-				fSootIntegrals->setf(std::ios::scientific);
+  				fSootIntegrals.reset(new std::ofstream("soot.integrals", std::ios::out));
+				fSootIntegrals().setf(std::ios::scientific);
 
-				*fSootIntegrals << std::setw(20) << "time";
-				*fSootIntegrals << std::setw(20) << "soot_mass[kg]";
-				*fSootIntegrals << std::setw(20) << "soot_volume[m3]";
-				*fSootIntegrals << std::setw(20) << "soot_particles[#]";		
-				*fSootIntegrals << std::setw(20) << "prec_mass[kg]";
-				*fSootIntegrals << std::setw(20) << "prec_volume[m3]";
-				*fSootIntegrals << std::setw(20) << "prec_partciles[#]";
-				*fSootIntegrals << std::setw(20) << "dimer_mass[kg]";		
-				*fSootIntegrals << std::setw(20) << "pah12_340nm[kg]";
-				*fSootIntegrals << std::setw(20) << "pah34_400nm[kg]";
-				*fSootIntegrals << std::setw(20) << "pahlarge_500nm[kg]";
-				*fSootIntegrals << std::endl;
+				fSootIntegrals() << std::setw(20) << "time";
+				fSootIntegrals() << std::setw(20) << "soot_mass[kg]";
+				fSootIntegrals() << std::setw(20) << "soot_volume[m3]";
+				fSootIntegrals() << std::setw(20) << "soot_particles[#]";		
+				fSootIntegrals() << std::setw(20) << "prec_mass[kg]";
+				fSootIntegrals() << std::setw(20) << "prec_volume[m3]";
+				fSootIntegrals() << std::setw(20) << "prec_partciles[#]";
+				fSootIntegrals() << std::setw(20) << "dimer_mass[kg]";		
+				fSootIntegrals() << std::setw(20) << "pah12_340nm[kg]";
+				fSootIntegrals() << std::setw(20) << "pah34_400nm[kg]";
+				fSootIntegrals() << std::setw(20) << "pahlarge_500nm[kg]";
+				fSootIntegrals() << std::endl;
 			}
 			else
 			{
-				fSootIntegrals = new std::ofstream();
-				fSootIntegrals->open("soot.integrals", std::ios::app);
-				fSootIntegrals->setf(std::ios::scientific);
+				fSootIntegrals.reset(new std::ofstream("soot.integrals", std::ios::app));
+				fSootIntegrals().setf(std::ios::scientific);
 			}
 		}
 }

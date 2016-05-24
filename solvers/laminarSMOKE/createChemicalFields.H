@@ -170,112 +170,112 @@ for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 			)
 		);
 	}
+}
 
-	if (outputFormationRatesIndices.size() != 0)
-	{
-		for (int i=0;i<outputFormationRatesIndices.size();i++)
-		{
-			FormationRates.set
-			(
-				i,
-				new volScalarField
-				(
-					IOobject
-					(
-						"R::" + thermodynamicsMapXML->NamesOfSpecies()[outputFormationRatesIndices(i)],
-						mesh.time().timeName(),
-						mesh,
-						IOobject::NO_READ,
-						IOobject::AUTO_WRITE
-					),
-					mesh,
-					dimensionedScalar("R", dimensionSet(1, -3, -1, 0, 0), 0.0)
-				)
-			);
-		}
-	}
+#if STEADYSTATE == 1
 
-	#if STEADYSTATE == 1
-
-	for (int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-	{
-		sourceImplicit.set
-		(
-			i,
-			new volScalarField
-			(
-				IOobject
-				(
-					"SI::" + thermodynamicsMapXML->NamesOfSpecies()[i],
-					mesh.time().timeName(),
-					mesh,
-					IOobject::NO_READ,
-					IOobject::NO_WRITE
-				),
-				mesh,
-				dimensionedScalar("SI", dimensionSet(1, -3, -1, 0, 0), 0.0)
-			)
-		);
-
-		sourceExplicit.set
-		(
-			i,
-			new volScalarField
-			(
-				IOobject
-				(
-					"SE::" + thermodynamicsMapXML->NamesOfSpecies()[i],
-					mesh.time().timeName(),
-					mesh,
-					IOobject::NO_READ,
-					IOobject::NO_WRITE
-				),
-				mesh,
-				dimensionedScalar("SE", dimensionSet(1, -3, -1, 0, 0), 0.0)
-			)
-		);
-	}
-
+for (int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
+{
 	sourceImplicit.set
 	(
-		thermodynamicsMapXML->NumberOfSpecies(),
+		i,
 		new volScalarField
 		(
 			IOobject
 			(
-				"SI::T",
+				"SI::" + thermodynamicsMapXML->NamesOfSpecies()[i],
 				mesh.time().timeName(),
 				mesh,
 				IOobject::NO_READ,
 				IOobject::NO_WRITE
 			),
 			mesh,
-			dimensionedScalar("SIT", dimensionSet(1, -1, -3, -1, 0), 0.0)
+			dimensionedScalar("SI", dimensionSet(1, -3, -1, 0, 0), 0.0)
 		)
 	);
 
 	sourceExplicit.set
 	(
-		thermodynamicsMapXML->NumberOfSpecies(),
+		i,
 		new volScalarField
 		(
 			IOobject
 			(
-				"SE::T",
+				"SE::" + thermodynamicsMapXML->NamesOfSpecies()[i],
 				mesh.time().timeName(),
 				mesh,
 				IOobject::NO_READ,
 				IOobject::NO_WRITE
 			),
 			mesh,
-			dimensionedScalar("SET", dimensionSet(1, -1, -3, 0, 0), 0.0)
+			dimensionedScalar("SE", dimensionSet(1, -3, -1, 0, 0), 0.0)
 		)
 	);
-
-	#endif
 }
 
-PtrList<volScalarField> sootFields(13);
+sourceImplicit.set
+(
+	thermodynamicsMapXML->NumberOfSpecies(),
+	new volScalarField
+	(
+		IOobject
+		(
+			"SI::T",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::NO_WRITE
+		),
+		mesh,
+		dimensionedScalar("SIT", dimensionSet(1, -1, -3, -1, 0), 0.0)
+	)
+);
+
+sourceExplicit.set
+(
+	thermodynamicsMapXML->NumberOfSpecies(),
+	new volScalarField
+	(
+		IOobject
+		(
+			"SE::T",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::NO_WRITE
+		),
+		mesh,
+		dimensionedScalar("SET", dimensionSet(1, -1, -3, 0, 0), 0.0)
+	)
+);
+
+#endif
+
+if (outputFormationRatesIndices.size() != 0)
+{
+	for (int i=0;i<outputFormationRatesIndices.size();i++)
+	{
+		FormationRates.set
+		(
+			i,
+			new volScalarField
+			(
+				IOobject
+				(
+					"R::" + thermodynamicsMapXML->NamesOfSpecies()[outputFormationRatesIndices(i)],
+					mesh.time().timeName(),
+					mesh,
+					IOobject::NO_READ,
+					IOobject::AUTO_WRITE
+				),
+				mesh,
+				dimensionedScalar("R", dimensionSet(1, -3, -1, 0, 0), 0.0)
+			)
+		);
+	}
+}
+
+PtrList<volScalarField> sootFields(18);
 if (sootOnTheFlyFill == true)
 {
 	sootFields.set
@@ -288,7 +288,7 @@ if (sootOnTheFlyFill == true)
 				"soot::fv_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -306,7 +306,7 @@ if (sootOnTheFlyFill == true)
 				"soot::fv_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -324,7 +324,7 @@ if (sootOnTheFlyFill == true)
 				"soot::rho_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -342,7 +342,7 @@ if (sootOnTheFlyFill == true)
 				"soot::rho_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -360,7 +360,7 @@ if (sootOnTheFlyFill == true)
 				"soot::N_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -378,7 +378,7 @@ if (sootOnTheFlyFill == true)
 				"soot::N_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -396,7 +396,7 @@ if (sootOnTheFlyFill == true)
 				"soot::x_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -414,7 +414,7 @@ if (sootOnTheFlyFill == true)
 				"soot::x_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -432,7 +432,7 @@ if (sootOnTheFlyFill == true)
 				"soot::omega_large",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -450,7 +450,7 @@ if (sootOnTheFlyFill == true)
 				"soot::omega_small",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -468,7 +468,7 @@ if (sootOnTheFlyFill == true)
 				"pah::omega_1_2",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -486,7 +486,7 @@ if (sootOnTheFlyFill == true)
 				"pah::omega_3_4",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
@@ -504,11 +504,101 @@ if (sootOnTheFlyFill == true)
 				"pah::omega_more_4",
 				mesh.time().timeName(),
 				mesh,
-				IOobject::READ_IF_PRESENT,
+				IOobject::NO_READ,
 				IOobject::AUTO_WRITE
 			),
 			mesh,
 			dimensionSet(0, 0, 0, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		13,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::R_large",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::NO_READ,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		14,
+		new volScalarField
+		(
+			IOobject
+			(
+				"soot::R_small",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::NO_READ,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		15,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::R_1_2",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::NO_READ,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		16,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::R_3_4",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::NO_READ,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
+		)
+	);
+
+        sootFields.set
+	(
+		17,
+		new volScalarField
+		(
+			IOobject
+			(
+				"pah::R_more_4",
+				mesh.time().timeName(),
+				mesh,
+				IOobject::NO_READ,
+				IOobject::AUTO_WRITE
+			),
+			mesh,
+			dimensionSet(1, -3, -1, 0, 0)
 		)
 	);
 }

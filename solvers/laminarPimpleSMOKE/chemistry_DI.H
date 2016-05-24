@@ -36,27 +36,27 @@
 						batchReactorHomogeneousConstantPressure.SetEnergyEquation(energyEquation);
 						
 						// Set initial conditions
-						odeSolverConstantPressure.SetInitialConditions(t0, y0);
+						odeSolverConstantPressure().SetInitialConditions(t0, y0);
 
 						// Additional ODE solver options
 						if (celli == 0)
 						{
 							// Set linear algebra options
-							odeSolverConstantPressure.SetLinearAlgebraSolver(odeParameterBatchReactorHomogeneous.linear_algebra());
-							odeSolverConstantPressure.SetFullPivoting(odeParameterBatchReactorHomogeneous.full_pivoting());
+							odeSolverConstantPressure().SetLinearAlgebraSolver(odeParameterBatchReactorHomogeneous.linear_algebra());
+							odeSolverConstantPressure().SetFullPivoting(odeParameterBatchReactorHomogeneous.full_pivoting());
 
 							// Set relative and absolute tolerances
-							odeSolverConstantPressure.SetAbsoluteTolerances(odeParameterBatchReactorHomogeneous.absolute_tolerance());
-							odeSolverConstantPressure.SetRelativeTolerances(odeParameterBatchReactorHomogeneous.relative_tolerance());
+							odeSolverConstantPressure().SetAbsoluteTolerances(odeParameterBatchReactorHomogeneous.absolute_tolerance());
+							odeSolverConstantPressure().SetRelativeTolerances(odeParameterBatchReactorHomogeneous.relative_tolerance());
 
 							// Set minimum and maximum values
-							odeSolverConstantPressure.SetMinimumValues(yMin);
-							odeSolverConstantPressure.SetMaximumValues(yMax);
+							odeSolverConstantPressure().SetMinimumValues(yMin);
+							odeSolverConstantPressure().SetMaximumValues(yMax);
 						}
 						
 						// Solve
-						OdeSMOKE::OdeStatus status = odeSolverConstantPressure.Solve(tf);
-						odeSolverConstantPressure.Solution(yf);
+						OdeSMOKE::OdeStatus status = odeSolverConstantPressure().Solve(tf);
+						odeSolverConstantPressure().Solution(yf);
 					}
 					else
 					{
@@ -65,27 +65,27 @@
 						batchReactorHomogeneousConstantVolume.SetEnergyEquation(energyEquation);
 						
 						// Set initial conditions
-						odeSolverConstantVolume.SetInitialConditions(t0, y0);
+						odeSolverConstantVolume().SetInitialConditions(t0, y0);
 
 						// Additional ODE solver options
 						if (celli == 0)
 						{
 							// Set linear algebra options
-							odeSolverConstantVolume.SetLinearAlgebraSolver(odeParameterBatchReactorHomogeneous.linear_algebra());
-							odeSolverConstantVolume.SetFullPivoting(odeParameterBatchReactorHomogeneous.full_pivoting());
+							odeSolverConstantVolume().SetLinearAlgebraSolver(odeParameterBatchReactorHomogeneous.linear_algebra());
+							odeSolverConstantVolume().SetFullPivoting(odeParameterBatchReactorHomogeneous.full_pivoting());
 
 							// Set relative and absolute tolerances
-							odeSolverConstantVolume.SetAbsoluteTolerances(odeParameterBatchReactorHomogeneous.absolute_tolerance());
-							odeSolverConstantVolume.SetRelativeTolerances(odeParameterBatchReactorHomogeneous.relative_tolerance());
+							odeSolverConstantVolume().SetAbsoluteTolerances(odeParameterBatchReactorHomogeneous.absolute_tolerance());
+							odeSolverConstantVolume().SetRelativeTolerances(odeParameterBatchReactorHomogeneous.relative_tolerance());
 
 							// Set minimum and maximum values
-							odeSolverConstantVolume.SetMinimumValues(yMin);
-							odeSolverConstantVolume.SetMaximumValues(yMax);
+							odeSolverConstantVolume().SetMinimumValues(yMin);
+							odeSolverConstantVolume().SetMaximumValues(yMax);
 						}
 						
 						// Solve
-						OdeSMOKE::OdeStatus status = odeSolverConstantVolume.Solve(tf);
-						odeSolverConstantVolume.Solution(yf);
+						OdeSMOKE::OdeStatus status = odeSolverConstantVolume().Solve(tf);
+						odeSolverConstantVolume().Solution(yf);
 					}
 				}
 			

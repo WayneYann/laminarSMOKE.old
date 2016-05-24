@@ -223,6 +223,7 @@ if (iPolimiSoot == true)
 		mesh,
 		dimensionSet(0, 0, 0, 0, 0)
 	);
+
         volScalarField soot_x_precursors
 	(
 		IOobject
@@ -237,12 +238,84 @@ if (iPolimiSoot == true)
 		dimensionSet(0, 0, 0, 0, 0)
 	);
 
+	volScalarField soot_R_large
+	(
+		IOobject
+		(
+			"soot::R_large",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::AUTO_WRITE
+		),
+		mesh,
+		dimensionSet(1, -3, -1, 0, 0)
+	);
+
+	volScalarField soot_R_small
+	(
+		IOobject
+		(
+			"soot::R_small",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::AUTO_WRITE
+		),
+		mesh,
+		dimensionSet(1, -3, -1, 0, 0)
+	);
+
+ 	volScalarField pah_R_1_2
+	(
+		IOobject
+		(
+			"pah::R_1_2",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::AUTO_WRITE
+		),
+		mesh,
+		dimensionSet(1, -3, -1, 0, 0)
+	);
+
+	volScalarField pah_R_3_4
+	(
+		IOobject
+		(
+			"pah::R_3_4",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::AUTO_WRITE
+		),
+		mesh,
+		dimensionSet(1, -3, -1, 0, 0)
+	);
+
+	volScalarField pah_R_more_4
+	(
+		IOobject
+		(
+			"pah::R_more_4",
+			mesh.time().timeName(),
+			mesh,
+			IOobject::NO_READ,
+			IOobject::AUTO_WRITE
+		),
+		mesh,
+		dimensionSet(1, -3, -1, 0, 0)
+	);
+
 	Info << "Post processing soot..." << endl;
 
 	label ns = Y.size();
 
 	OpenSMOKE::OpenSMOKEVectorDouble y(ns);
 	OpenSMOKE::OpenSMOKEVectorDouble x(ns);
+	OpenSMOKE::OpenSMOKEVectorDouble c(thermodynamicsMapXML->NumberOfSpecies());
+	OpenSMOKE::OpenSMOKEVectorDouble R(thermodynamicsMapXML->NumberOfSpecies());
 	Eigen::VectorXd y_eigen(ns);
 	Eigen::VectorXd x_eigen(ns);
 
@@ -268,6 +341,11 @@ if (iPolimiSoot == true)
 	scalarField& soot_omega_precursorsCells = soot_omega_precursors.internalField();
 	scalarField& soot_x_precursorsCells = soot_x_precursors.internalField();
 
+	scalarField& soot_R_largeCells = soot_R_large.internalField();
+	scalarField& soot_R_smallCells = soot_R_small.internalField();
+	scalarField& pah_R_1_2Cells = pah_R_1_2.internalField();
+	scalarField& pah_R_3_4Cells = pah_R_3_4.internalField();
+	scalarField& pah_R_more_4Cells = pah_R_more_4.internalField();
 
 	forAll(TCells, celli)
 	{	
@@ -321,7 +399,25 @@ if (iPolimiSoot == true)
 			soot_omega_precursorsCells[celli] += y_eigen(index);
 			soot_x_precursorsCells[celli] += x_eigen(index);
 		}
-			
+
+		// Concentrations
+		const double cTot = pCells[celli]/PhysicalConstants::R_J_kmol/TCells[celli];
+		Product(cTot,x, &c);
+
+		// Kinetics
+		kineticsMapXML->SetTemperature(TCells[celli]);
+		kineticsMapXML->SetPressure(pCells[celli]);
+		kineticsMapXML->KineticConstants();
+		kineticsMapXML->ReactionRates(c);
+		kineticsMapXML->FormationRates(&R);
+		for(unsigned int i=1;i<=ns;i++)
+			R[i] *= thermodynamicsMapXML->MW()[i];
+
+		soot_R_largeCells[celli] = largeBinMassFormationRates(sootAnalyzer, R);
+		soot_R_smallCells[celli] = smallBinMassFormationRates(sootAnalyzer, R);
+		pah_R_1_2Cells[celli]    = pah12RingsFormationRates(sootAnalyzer, R);
+		pah_R_3_4Cells[celli]    = pah34RingsFormationRates(sootAnalyzer, R);
+		pah_R_more_4Cells[celli] = pahMoreThan4RingsFormationRates(sootAnalyzer, R);			
 	}
 
 	forAll(T.boundaryField(), patchi)
@@ -347,6 +443,12 @@ if (iPolimiSoot == true)
 		fvPatchScalarField& psoot_o_over_h_small = soot_o_over_h_small.boundaryField()[patchi];
 		fvPatchScalarField& psoot_x_precursors = soot_x_precursors.boundaryField()[patchi];
 		fvPatchScalarField& psoot_omega_precursors = soot_omega_precursors.boundaryField()[patchi];
+
+		fvPatchScalarField& psoot_R_large = soot_R_large.boundaryField()[patchi];
+		fvPatchScalarField& psoot_R_small = soot_R_small.boundaryField()[patchi];
+		fvPatchScalarField& ppah_R_1_2 = pah_R_1_2.boundaryField()[patchi];
+		fvPatchScalarField& ppah_R_3_4 = pah_R_3_4.boundaryField()[patchi];
+		fvPatchScalarField& ppah_R_more_4 = pah_R_more_4.boundaryField()[patchi];
 
 
 		forAll(pT, facei)
@@ -402,6 +504,24 @@ if (iPolimiSoot == true)
 				psoot_x_precursors[facei] += x_eigen(index);
 			}
 
+			// Concentrations
+			const double cTot = pp[facei]/PhysicalConstants::R_J_kmol/pT[facei];
+			Product(cTot,x, &c);
+
+			// Kinetics
+			kineticsMapXML->SetTemperature(pT[facei]);
+			kineticsMapXML->SetPressure(pp[facei]);
+			kineticsMapXML->KineticConstants();
+			kineticsMapXML->ReactionRates(c);
+			kineticsMapXML->FormationRates(&R);
+			for(unsigned int i=1;i<=ns;i++)
+				R[i] *= thermodynamicsMapXML->MW()[i];
+
+			psoot_R_large[facei] = largeBinMassFormationRates(sootAnalyzer, R);
+			psoot_R_small[facei] = smallBinMassFormationRates(sootAnalyzer, R);
+			ppah_R_1_2[facei]    = pah12RingsFormationRates(sootAnalyzer, R);
+			ppah_R_3_4[facei]    = pah34RingsFormationRates(sootAnalyzer, R);
+			ppah_R_more_4[facei] = pahMoreThan4RingsFormationRates(sootAnalyzer, R);
 		}
 	}
 
@@ -423,6 +543,13 @@ if (iPolimiSoot == true)
 	soot_o_over_h_small.write();	
 	soot_omega_precursors.write();
 	soot_x_precursors.write();
+
+	soot_R_large.write();
+	soot_R_small.write();
+	pah_R_1_2.write();
+	pah_R_3_4.write();
+	pah_R_more_4.write();
+
 
 	// Distribution along a boundary
 	for (int i=0;i<polimiSootBoundaries.size();i++)
@@ -470,14 +597,81 @@ if (iPolimiSoot == true)
 			// Soot analysis
 			sootAnalyzer->Analysis(pT[facei], pp[facei], rhoGas, y_eigen, x_eigen);	
 			sootAnalyzer->Distribution();
-			sootAnalyzer->WriteDistribution(fOutput, face_x, pT[facei]);
+			sootAnalyzer->WriteDistribution(fOutput, face_x, 0., 0., pT[facei]);
 		}
 		
 		fOutput.close();
 	}
 	
 	// Distribution in a specific point
+	if (pnts_soot_psdf.size() > 0)
 	{
-		//label labelOfClosestCell mesh.findCell(1e-8,);
+		Info << "Post processing PSDF..." << endl;
+
+		for (unsigned int i=0;i<pnts_soot_psdf.size();i++)
+		{
+			const double xx = pnts_soot_psdf[i][0];
+			const double yy = pnts_soot_psdf[i][1];
+			const double zz = pnts_soot_psdf[i][2];
+
+			Info << "Post processing point " << i+1 << " @ " << xx << " " << yy << " " << zz << endl;
+
+			vector pos(xx,yy,zz);
+			label cellI = mesh.findCell(pos);
+
+			if (cellI > -1)
+			{
+				std::stringstream tag;
+				tag << i;
+				std::string name_file = "/soot::PSDF_" + tag.str();
+
+				// File name
+				fileName outputFile(runTime.path()/runTime.timeName()/name_file.c_str());
+				std::ofstream fOutput(outputFile.c_str(), std::ios::out);
+				fOutput.setf(std::ios::scientific);
+				sootAnalyzer->WriteDistributionLabel(fOutput);
+
+				// Temperature and pressure
+				autoPtr<interpolation<scalar> > Tinterp = interpolation<scalar>::New("cellPoint", T);
+				scalar Tint = Tinterp->interpolate(pos, cellI);
+				autoPtr<interpolation<scalar> > pinterp = interpolation<scalar>::New("cellPoint", p);
+				scalar pint = pinterp->interpolate(pos, cellI);
+
+				Info << "Cell: " << cellI << " T: " << Tint << " P: " << pint << endl; 
+
+
+				double mw;
+
+				// Extract the mass fractions
+				for(unsigned int i=0;i<ns;i++)
+				{
+					autoPtr<interpolation<scalar> > Yinterp = interpolation<scalar>::New("cellPoint", Y[i]);
+					y[i+1] = Yinterp->interpolate(pos, cellI);
+				}
+
+				const double sum = y.SumElements();
+				for(unsigned int i=0;i<ns;i++)
+					y[i+1] /= sum;
+
+				// Molecular weight
+				thermodynamicsMapXML->MoleFractions_From_MassFractions(x, mw, y);
+
+				// Eigen vectors
+				for(unsigned int i=0;i<ns;i++)
+				{
+					y_eigen(i) = y[i+1];
+					x_eigen(i) = x[i+1];
+				}
+
+				// Density
+				const double rhoGas = pint*mw/PhysicalConstants::R_J_kmol/Tint;
+
+				// Soot analysis
+				sootAnalyzer->Analysis(Tint, pint, rhoGas, y_eigen, x_eigen);	
+				sootAnalyzer->Distribution();
+				sootAnalyzer->WriteDistribution(fOutput, xx, yy, zz, Tint);
+				fOutput.close();
+			}
+		}
 	}
 }
