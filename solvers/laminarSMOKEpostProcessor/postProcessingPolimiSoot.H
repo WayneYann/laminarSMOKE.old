@@ -602,7 +602,7 @@ if (iPolimiSoot == true)
 		
 		fOutput.close();
 	}
-	
+
 	// Distribution in a specific point
 	if (pnts_soot_psdf.size() > 0)
 	{

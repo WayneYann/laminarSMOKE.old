@@ -78,6 +78,7 @@ const dictionary& physicalModelDictionary = solverOptions.subDict("PhysicalModel
 	speciesEquations = Switch(physicalModelDictionary.lookup(word("speciesEquations")));
 	zMixEquation = Switch(physicalModelDictionary.lookup(word("zMixEquation")));
 	tauEquation = Switch(physicalModelDictionary.lookup(word("tauEquation")));
+	zMixEquation = Switch(physicalModelDictionary.lookup(word("zMixEquation")));
 	homogeneousReactions = Switch(physicalModelDictionary.lookup(word("homogeneousReactions")));
 	includeDpDt = Switch(physicalModelDictionary.lookup(word("includeDpDt")));
 	iMassDiffusionInEnergyEquation = Switch(physicalModelDictionary.lookup(word("massDiffusionInEnergyEquation")));
@@ -180,27 +181,6 @@ const dictionary& outputDictionary = solverOptions.subDict("Output");
 	}
 }
 
-// Radiative heat transfer
-radiativeHeatTransferClass radiativeHeatTransfer;
-
-const dictionary& radiativeHeatTransferDictionary = solverOptions.subDict("Radiation");
-{
-	word radiation(radiativeHeatTransferDictionary.lookup("radiationModel"));
-	     if (radiation == "none") 		radiativeHeatTransfer.SetRadiationModel(RADIATION_NONE);
-	else if (radiation == "optically-thin") radiativeHeatTransfer.SetRadiationModel(RADIATION_OPTICALLY_THIN);
-	else
-	{
-		Info << "Wrong radiationModel option: none || optically-thin" << endl;
-		abort();
-	}
-
-	if (radiativeHeatTransfer.radiationModel() == RADIATION_OPTICALLY_THIN)
-	{
-		radiativeHeatTransfer.SetThermodynamics(*thermodynamicsMapXML);
-		radiativeHeatTransfer.SetEnvironmentTemperature( readScalar(radiativeHeatTransferDictionary.lookup("environmentTemperature")) );
-	}
-}
-
 // Thermophoretic effect
 std::vector<bool> thermophoreticEffectList;
 Switch physicalSootDiffusivity = false;
@@ -287,9 +267,8 @@ Switch iPolimiSoot = false;
 label sootIntegralUpdate  = 1;
 label sootIntegralCounter = sootIntegralUpdate;
 Switch sootOnTheFlyFill = false;
-//std::ofstream* fSootIntegrals;
-autoPtr<std::ofstream> fSootIntegrals;
 
+autoPtr<std::ofstream> fSootIntegrals;
 //List<vector> pnts_soot_psdf;
 {	
 		const dictionary& postProcessingDictionary = solverOptions.subDict("PostProcessing");		
@@ -298,30 +277,6 @@ autoPtr<std::ofstream> fSootIntegrals;
 		if (iPolimiSoot == true)
 		{
 			const dictionary& postProcessingPolimiSootDictionary = postProcessingDictionary.subDict("PolimiSoot");
-		/*	List<word> list_soot_precursors = List<word>(postProcessingPolimiSootDictionary.lookup("sootPrecursors"));
-
-			for(unsigned int k=0;k<list_soot_precursors.size();k++)
-			{
-				bool found = false;
-				for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-				{
-					if (list_soot_precursors[k] == thermodynamicsMapXML->NamesOfSpecies()[i])
-					{
-						soot_precursors_indices.push_back(i);
-						found = true;
-					}	
-				}
-				if (found == false)
-				{
-					Info << "The following soot precursor is not included in the kinetic mechanism: " << list_soot_precursors[k] << endl;
-					abort();
-				}
-				else
-				{
-					Info << "Soot precursor " << k+1 << " " << list_soot_precursors[k] << " : index " << soot_precursors_indices[k] << endl;
-				}
-			}
-		*/
 			
 			sootOnTheFlyFill    = Switch(postProcessingPolimiSootDictionary.lookup(word("onTheFlyFill")));
 			sootIntegralUpdate  = readLabel(postProcessingPolimiSootDictionary.lookup("integralUpdate"));
@@ -334,8 +289,11 @@ autoPtr<std::ofstream> fSootIntegrals;
 			scalar bin_density_final = readScalar(postProcessingPolimiSootDictionary.lookup("binDensityFinal"));
 			scalar fractal_diameter  = readScalar(postProcessingPolimiSootDictionary.lookup("fractalDiameter"));
 			Foam::string planck_coefficient = postProcessingPolimiSootDictionary.lookup("planckCoefficient");
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 2eed86c6b541a51a4d2489414b7b19cf2f7bb81c
 
 			sootAnalyzer = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
 			sootAnalyzer->SetFractalDiameter(fractal_diameter);

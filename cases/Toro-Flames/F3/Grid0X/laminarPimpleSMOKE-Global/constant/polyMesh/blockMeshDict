@@ -29,47 +29,53 @@ Lmm  -8;
 
 R1    4.5;
 R1X   4.495716997;
-R1Y   0.196287243;
-R1Ym -0.196287243;
+R1Z   0.196287243;
+R1Zm -0.196287243;
 
 R2    5.5;
 R2X   5.494765218;
-R2Y   0.239906630;
-R2Ym -0.239906630;
+R2Z   0.239906630;
+R2Zm -0.239906630;
 
 R3    47.5;
 R3X   47.45479052;
-R3Y    2.07192089;
-R3Ym  -2.07192089;
+R3Z    2.07192089;
+R3Zm  -2.07192089;
                                          
 vertices                                
-(                                       
+(            
+                           
    (0.		0.  	  0.	)   // 0
-   ($R1X 	$R1Y      0.	)   // 1
-   ($R1X 	$R1Y      $L	)   // 2
+   (0. 		$L        0.	)   // 1
 
-   (0. 		0. 	  $L)   // 3
-   ($R1X 	$R1Ym     0.)   // 4
-   ($R1X 	$R1Ym     $L)   // 5
+   ($R1X	0.  	  $R1Zm	)   // 2
+   ($R1X 	$L        $R1Zm	)   // 3
 
-   (0.		0.	  $Lmm)   // 6
-   ($R1X 	$R1Y      $Lmm)   // 7
-   ($R1X 	$R1Ym     $Lmm)   // 8
+   ($R2X	0.  	  $R2Zm	)   // 4
+   ($R2X 	$L        $R2Zm	)   // 5
 
-   ($R2X 	$R2Y     0.)   // 9
-   ($R2X 	$R2Ym    0.)   // 10
-   ($R2X 	$R2Y     $L)   // 11
-   ($R2X 	$R2Ym    $L)   // 12
+   ($R3X	0.  	  $R3Zm	)   // 6
+   ($R3X 	$L        $R3Zm	)   // 7
 
-   ($R3X 	$R3Y     	0.)   // 13
-   ($R3X 	$R3Ym    	0.)   // 14
-   ($R3X 	$R3Y     	$L)   // 15
-   ($R3X 	$R3Ym     	$L)   // 16
+   (0.		$Lm  	  0.	)   // 8
+   ($R1X 	$Lm       $R1Zm	)   // 9
+   ($R2X 	$Lm       $R2Zm	)   // 10
+   ($R3X 	$Lm       $R3Zm	)   // 11
 
-   ($R2X 	$R2Y     	$Lm)   // 17
-   ($R3X 	$R3Y      	$Lm)   // 18
-   ($R3X 	$R3Ym   	$Lm)   // 19
-   ($R2X 	$R2Ym    	$Lm)   // 20
+
+   ($R1X	0.  	  $R1Z	)   // 12
+   ($R1X 	$L        $R1Z	)   // 13
+
+   ($R2X	0.  	  $R2Z	)   // 14
+   ($R2X 	$L        $R2Z	)   // 15
+
+   ($R3X	0.  	  $R3Z	)   // 16
+   ($R3X 	$L        $R3Z	)   // 17
+
+   ($R1X 	$Lm       $R1Z	)   // 18
+   ($R2X 	$Lm       $R2Z	)   // 19
+   ($R3X 	$Lm       $R3Z	)   // 120
+
 );
 
 Nfuel      8;
@@ -78,36 +84,36 @@ NaxisBack  6;
 Ncoflow   20;
 Nnozzle    2;
 
-Gaxis     30.;
+Gaxis      20;
 GaxisBack 0.2;
-Gcoflow   10.;
+Gcoflow    10;
 Gfuel     0.5;
 
 blocks
 ( 	
 	// Fuel
-	hex (6 8 7 6 0 4 1 0)         ($Nfuel   1 $NaxisBack  )  simpleGrading   ($Gfuel  1. $GaxisBack	)
-	hex (0 4 1 0 3 5 2 3)         ($Nfuel   1 $Naxis )       simpleGrading   ($Gfuel  1. $Gaxis	)
+	hex (8 9 2 0 8 18 12 0)         ($Nfuel   $NaxisBack  1)  simpleGrading   ($Gfuel  $GaxisBack	1)
+	hex (0 2 3 1 0 12 13 1)         ($Nfuel   $Naxis      1)  simpleGrading   ($Gfuel  $Gaxis	1)
 	
 	// Wall
-	hex (4 10 9 1 5 12 11 2)      ($Nnozzle  1 $Naxis )       simpleGrading   (1.  1. $Gaxis	)
+	hex (2 4 5 3 12 14 15 13)       ($Nnozzle $Naxis 1)       simpleGrading   (1.  $Gaxis	1)
 	
 	// Coflow
-	hex (20 19 18 17 10 14 13 9)  ($Ncoflow  1 $NaxisBack  )  simpleGrading   ($Gcoflow 1. $GaxisBack	)
-	hex (10 14 13 9 12 16 15 11)  ($Ncoflow  1 $Naxis )       simpleGrading   ($Gcoflow 1. $Gaxis		)
+	hex (10 11 6 4 19 20 16 14)   ($Ncoflow  $NaxisBack  1)  simpleGrading   ($Gcoflow $GaxisBack 1)
+	hex (4 6 7 5 14 16 17 15)     ($Ncoflow  $Naxis      1)  simpleGrading   ($Gcoflow $Gaxis     1)
 );
                                      
 edges
     (
-        arc 4 1   ($R1 0 0)
-        arc 8 7   ($R1 0 $Lmm)
-        arc 5 2   ($R1 0 $L)
-        arc 10 9  ($R2 0 0)
-        arc 20 17 ($R2 0 $Lm)
-        arc 12 11 ($R2 0 $L)
-        arc 14 13 ($R3 0 0)
-        arc 19 18 ($R3 0 $Lm)
-        arc 16 15 ($R3 0 $L)
+        arc 12 2  ($R1 0 0)
+        arc 18 9  ($R1 0 $Lm)
+        arc 13 3  ($R1 0 $L)
+        arc 14 4  ($R2 0 0)
+        arc 19 10 ($R2 0 $Lm)
+        arc 15 5  ($R2 0 $L)
+        arc 16 6  ($R3 0 0)
+        arc 20 11 ($R3 0 $Lm)
+        arc 17 7  ($R3 0 $L)
 
     );                                              
                              
@@ -115,56 +121,56 @@ patches
 (                                    
     patch inletfuel                  
     (                                
-        (6 8 7 6)                    
+        (8 9 18 8)                    
     )                                
                                      
     patch inletair                   
     (                                
-        (19 20 17 18)                
+        (20 19 10 11)                
     )                                
                                      
     patch outlet                     
     (                                
-        (5 3 3 2)                    
-        (12 11 2 5)                  
-        (16 15 11 12)                  
+        (13 3 1 1)                    
+        (5 3 13 15)                  
+        (7 5 15 17)                  
     )                                
                                      
     empty axis                       
     (                                
-        (3 0 0 3)                    
-        (0 6 6 0)                    
+        (0 1 1 0)                    
+        (8 0 0 8)                    
     )                                
                                      
     wall leftside                    
     (                                              
-        (19 18 13 14)
-	(14 13 15 16)                
+        (7 17 16 6)
+	(16 20 11 6)                
     )                                
                                      
     wall burnerwall                  
     (                                
-        (8 7 1 4)                    
-        (10 9 17 20)                 
-        (4 1 9 10)                   
+        (2 12 18 9)                    
+        (14 12 2 4)                 
+        (19 14 4 10)                   
     )                                
                                      
     wedge front                      
     (                                
-        (1 0 3 2)                    
-        (7 6 0 1)                    
-        (9 1 2 11)                   
-        (13 9 11 15)                 
-        (18 17 9 13)                
+        (0 2 9 8)                    
+        (1 3 2 0)                    
+        (2 3 5 4)                   
+        (5 7 6 4)                 
+        (4 6 11 10)                
     )                                
                                      
     wedge back                       
     (                                
-	(5 3 0 4)                    
-        (4 0 6 8)                    
-        (12 5 4 10)                  
-        (16 12 10 14)                
-        (19 14 10 20)               
+	(13 1 0 12)                    
+        (0 8 18 12)                    
+        (15 13 12 14)                  
+        (17 15 14 16)                
+        (16 14 19 20)               
     )                                
                                      
 );                                   

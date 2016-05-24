@@ -55,6 +55,48 @@ solvers
         relTol          1e-06;
 	minIter		1;
     }
+
+    tau
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-07;
+        relTol          1e-06;
+	minIter		1;
+    }
+
+    zMix
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-07;
+        relTol          1e-06;
+	minIter		1;
+    }
+
+    Ii
+    {
+        solver                  GAMG;
+        tolerance               1e-4;
+        relTol                  0.1;
+        smoother                symGaussSeidel;
+        cacheAgglomeration      true;
+        nCellsInCoarsestLevel   10;
+        agglomerator            faceAreaPair;
+        mergeLevels             1;
+        maxIter                 3;
+        nPreSweeps              0;
+        nPostSweeps             1;
+    }
+
+    G
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-07;
+        relTol          1e-06;
+        minIter         1;
+    }
 }
 
 SIMPLE
@@ -82,19 +124,15 @@ relaxationFactors
     }
     equations
     {
-        U               0.7;
+	default         0.3;
+
+        U               0.5;
         T               0.3;
 
-	default         0.3;
-	H2		0.3;
-	O2		0.3;
-	OH		0.3;
-	H2O		0.3;
-	H2O2		0.3;
-	HO2		0.3;
-	O		0.3;
-	H		0.3;
-	N2 		0.3;
+	tau		0.3;
+	zMix		0.3;
+	G		0.3;
+	Ii		0.3;
     }
 }
 

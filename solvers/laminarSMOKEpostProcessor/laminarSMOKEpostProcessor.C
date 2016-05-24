@@ -113,7 +113,6 @@ Notes
 #include "multivariateScheme.H"
 #include "interpolation.H"
 
-
 // Soot
 #include "sootUtilities.H"
 #include "soot/OpenSMOKE_PolimiSoot_Analyzer.h"

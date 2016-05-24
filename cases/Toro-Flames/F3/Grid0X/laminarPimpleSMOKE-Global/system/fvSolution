@@ -56,15 +56,53 @@ solvers
         $TFinal;
 	minIter		1;
     }
+
+    tau
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+    zMix
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+    }
+
+    Ii
+    {
+        solver                  GAMG;
+        tolerance               1e-4;
+        relTol                  0.1;
+        smoother                symGaussSeidel;
+        cacheAgglomeration      true;
+        nCellsInCoarsestLevel   10;
+        agglomerator            faceAreaPair;
+        mergeLevels             1;
+        maxIter                 3;
+        nPreSweeps              0;
+        nPostSweeps             1;
+    }
+
+    "(G)Final"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-04;
+        relTol          0;
+    }
 }
 
 PIMPLE
 {
-    momentumPredictor no;
-    nOuterCorrectors  1;
-    nCorrectors     2;
-    nNonOrthogonalCorrectors 0;
+    momentumPredictor        no;
+    nOuterCorrectors          1;
+    nCorrectors               2;
+    nNonOrthogonalCorrectors  0;
 }
-
 
 // ************************************************************************* //

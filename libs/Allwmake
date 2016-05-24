@@ -1,0 +1,6 @@
+wclean
+wmake
+cd laminarSMOKEradiationModels
+wclean
+wmake
+cd ..

@@ -187,7 +187,9 @@ if (iPolimiSoot == true)
 			}
 		}
 
-		// Distribution in a specific point
+
+		// Distribution in a specific point (TODO)
+
 /*
 		if (pnts_soot_psdf.size() > 0)
 		{
@@ -317,6 +319,17 @@ if (iPolimiSoot == true)
 	sootIntegralCounter++;
 }
 
+<<<<<<< HEAD
+=======
+// Radiative loss
+{
+	if (runTime.outputTime() == true)
+	{
+		radiation->Qloss(T,Qrad);
+	}
+}
+
+>>>>>>> 2eed86c6b541a51a4d2489414b7b19cf2f7bb81c
 // Formation rates
 {
 	if (runTime.outputTime() == true && outputFormationRatesIndices.size()>0)
